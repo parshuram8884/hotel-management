@@ -6,7 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const authRoutes = require('./routes/auth');
 const guestRoutes = require('./routes/guestRoutes')
-const complaintRoutes = require('./routes/complaintRoutes');
+const complaintRoutes = require('./routes/complaintRoutes')
 const foodRoutes = require('./routes/foodRoutes')
 const cookieParser = require('cookie-parser');
 

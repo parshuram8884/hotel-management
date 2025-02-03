@@ -1,5 +1,5 @@
 const Complaint = require('../model/Complaint');
-const PreDefinedComplaint = require('../model/PreDefinedComplaint');
+const PreDefinedComplaint = require('../model/PredefinedComplaint')
 const Guest = require('../model/Guest');
 
 // Function to delete old complaints
