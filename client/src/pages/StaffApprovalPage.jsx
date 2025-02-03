@@ -21,7 +21,7 @@ const StaffApprovalPage = () => {
       setHotelId(hotelInfo.id); // Store hotelId
 
       const response = await axios.get(
-        `http://localhost:5000/api/guests/pending/${hotelInfo.id}`,
+        `https://hotel-management-server-a3o3.onrender.com/api/guests/pending/${hotelInfo.id}`,
         {
           headers: { Authorization: token }
         }
@@ -48,7 +48,7 @@ const StaffApprovalPage = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        `http://localhost:5000/api/guests/approve/${guestId}`,
+        `https://hotel-management-server-a3o3.onrender.com/api/guests/approve/${guestId}`,
         {},
         {
           headers: { Authorization: token }
@@ -66,7 +66,7 @@ const StaffApprovalPage = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        `http://localhost:5000/api/guests/reject/${guestId}`,
+        `https://hotel-management-server-a3o3.onrender.com/api/guests/reject/${guestId}`,
         { hotelId }, // Include hotelId in rejection
         {
           headers: { Authorization: token }

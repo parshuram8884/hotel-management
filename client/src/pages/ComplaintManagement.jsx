@@ -28,7 +28,7 @@ const ComplaintManagement = () => {
       }
 
       const response = await axios.get(
-        'http://localhost:5000/api/complaints/hotel',
+        'https://hotel-management-server-a3o3.onrender.com/api/complaints/hotel',
         {
           headers: { Authorization: token }
         }
@@ -51,7 +51,7 @@ const ComplaintManagement = () => {
     try {
       const hotelInfo = JSON.parse(localStorage.getItem('hotelInfo'));
       const response = await axios.get(
-        `http://localhost:5000/api/complaints/predefined/${hotelInfo.id}`
+        `https://hotel-management-server-a3o3.onrender.com/api/complaints/predefined/${hotelInfo.id}`
       );
       setPredefinedComplaints(response.data);
     } catch (error) {
@@ -66,7 +66,7 @@ const ComplaintManagement = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        'http://localhost:5000/api/complaints/predefined',
+        'https://hotel-management-server-a3o3.onrender.com/api/complaints/predefined',
         { title: newComplaint },
         {
           headers: { Authorization: token }
@@ -88,7 +88,7 @@ const ComplaintManagement = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.patch(
-        `http://localhost:5000/api/complaints/${complaintId}/status`,
+        `https://hotel-management-server-a3o3.onrender.com/api/complaints/${complaintId}/status`,
         { status: newStatus },
         {
           headers: { Authorization: token }
@@ -115,7 +115,7 @@ const ComplaintManagement = () => {
       }
 
       const response = await axios.post(
-        `http://localhost:5000/api/complaints/${selectedComplaint._id}/staff-messages`,
+        `https://hotel-management-server-a3o3.onrender.com/api/complaints/${selectedComplaint._id}/staff-messages`,
         { message },
         {
           headers: { Authorization: token }
@@ -150,7 +150,7 @@ const ComplaintManagement = () => {
       }
 
       await axios.delete(
-        `http://localhost:5000/api/complaints/${complaintId}`,
+        `https://hotel-management-server-a3o3.onrender.com/api/complaints/${complaintId}`,
         {
           headers: { Authorization: token }
         }

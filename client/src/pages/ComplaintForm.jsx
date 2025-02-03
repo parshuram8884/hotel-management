@@ -20,7 +20,7 @@ const ComplaintForm = () => {
       try {
         const guestInfo = JSON.parse(localStorage.getItem('guestInfo'));
         const response = await axios.get(
-          `http://localhost:5000/api/complaints/predefined/${guestInfo.hotelId}`
+          `https://hotel-management-server-a3o3.onrender.com/api/complaints/predefined/${guestInfo.hotelId}`
         );
         setPredefinedComplaints(response.data);
       } catch (error) {
@@ -41,7 +41,7 @@ const ComplaintForm = () => {
     try {
       const token = localStorage.getItem('guestToken');
       await axios.post(
-        'http://localhost:5000/api/complaints/submit',
+        'https://hotel-management-server-a3o3.onrender.com/api/complaints/submit',
         {
           ...formData,
           isPredefined: complaintType === 'predefined'

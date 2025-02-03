@@ -13,7 +13,7 @@ const ForgotPassword = () => {
     setLoading(true)
 
     try {
-      await axios.post('http://localhost:5000/api/auth/forgot-password', {
+      await axios.post(`https://hotel-management-server-a3o3.onrender.com/api/auth/forgot-password`, {
         email
       })
       setSubmitted(true)

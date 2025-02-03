@@ -23,7 +23,7 @@ const FoodManagement = () => {
     try {
       const hotelInfo = JSON.parse(localStorage.getItem('hotelInfo'));
       const response = await axios.get(
-        `http://localhost:5000/api/food/${hotelInfo.id}`
+        `https://hotel-management-server-a3o3.onrender.com/api/food/${hotelInfo.id}`
       );
       setFoods(response.data);
     } catch (error) {
@@ -58,7 +58,7 @@ const FoodManagement = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        'http://localhost:5000/api/food',
+        'https://hotel-management-server-a3o3.onrender.com/api/food',
         formDataToSend,
         {
           headers: { 
@@ -84,7 +84,7 @@ const FoodManagement = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.patch(
-        `http://localhost:5000/api/food/${foodId}`,
+        `https://hotel-management-server-a3o3.onrender.com/api/food/${foodId}`,
         { isAvailable },
         {
           headers: { Authorization: token }
@@ -105,7 +105,7 @@ const FoodManagement = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(
-        `http://localhost:5000/api/food/${foodId}`,
+        `https://hotel-management-server-a3o3.onrender.com/api/food/${foodId}`,
         {
           headers: { Authorization: token }
         }

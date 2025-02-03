@@ -16,7 +16,7 @@ const GuestComplaintTracking = () => {
     try {
       const token = localStorage.getItem('guestToken');
       const response = await axios.get(
-        'http://localhost:5000/api/complaints/guest',
+        'https://hotel-management-server-a3o3.onrender.com/api/complaints/guest',
         {
           headers: { Authorization: token }
         }
@@ -36,7 +36,7 @@ const GuestComplaintTracking = () => {
     try {
       const token = localStorage.getItem('guestToken');
       await axios.post(
-        `http://localhost:5000/api/complaints/${complaintId}/messages`,
+        `https://hotel-management-server-a3o3.onrender.com/api/complaints/${complaintId}/messages`,
         { message },
         {
           headers: { Authorization: token }

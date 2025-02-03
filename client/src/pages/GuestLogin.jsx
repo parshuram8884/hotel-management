@@ -38,7 +38,7 @@ const GuestLogin = () => {
     const verifyHotel = async () => {
       try {
         console.log('Verifying hotel:', hotelId);
-        const response = await axios.get(`http://localhost:5000/api/guests/verify-hotel/${hotelId}`);
+        const response = await axios.get(`https://hotel-management-server-a3o3.onrender.com/api/guests/verify-hotel/${hotelId}`);
         console.log('Hotel verification response:', response.data);
         setHotelInfo(response.data.hotel);
       } catch (error) {
@@ -93,7 +93,7 @@ const GuestLogin = () => {
 
     try {
       const response = await axios.post(
-        `http://localhost:5000/api/guests/register/${hotelId}`,
+        `https://hotel-management-server-a3o3.onrender.com/api/guests/register/${hotelId}`,
         formData
       );
 

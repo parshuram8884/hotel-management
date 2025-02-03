@@ -19,7 +19,7 @@ function OrderTracking() {
         }
 
         const response = await axios.get(
-          `http://localhost:5000/api/food/orders/active/${guestInfo._id}`,  // Updated route
+          `https://hotel-management-server-a3o3.onrender.com/api/food/orders/active/${guestInfo._id}`,  // Updated route
           {
             headers: { Authorization: token }
           }

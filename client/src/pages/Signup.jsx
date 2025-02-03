@@ -35,7 +35,7 @@ const SignUp = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/signup', {
+      const response = await axios.post('https://hotel-management-server-a3o3.onrender.com/api/auth/signup', {
         hotelName: formData.hotelName,
         email: formData.email,
         password: formData.password,

@@ -25,7 +25,7 @@ function StaffDashboard() {
       if (!hotelInfo?.id || !token) return;
 
       const response = await axios.get(
-        `http://localhost:5000/api/guests/approved/${hotelInfo.id}`,
+        `https://hotel-management-server-a3o3.onrender.com/api/guests/approved/${hotelInfo.id}`,
         {
           headers: { Authorization: token }
         }
