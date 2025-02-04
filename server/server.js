@@ -21,7 +21,7 @@ if (!fs.existsSync(uploadDir)) {
 // Middleware
 app.use(cookieParser());
 app.use(cors({
-  origin: 'http://localhost:5173', // Update this to match your frontend URL
+  origin: 'https://hotel-management-client.onrender.com', // Update this to match your frontend URL
   credentials: true
 }));
 app.use(express.json());
