@@ -87,8 +87,21 @@ const GuestLogin = () => {
     });
   };
 
+  const validatePhone = (phone) => {
+    // Allows formats: +91XXXXXXXXXX, 91XXXXXXXXXX, XXXXXXXXXX (10 digits)
+    const phoneRegex = /^(?:\+91|91)?[6-9]\d{9}$/;
+    return phoneRegex.test(phone);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate mobile number
+    if (!validatePhone(formData.mobileNumber)) {
+      toast.error('Please enter a valid 10-digit Indian mobile number');
+      return;
+    }
+
     setLoading(true);
 
     try {

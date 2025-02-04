@@ -10,7 +10,13 @@ const hotelSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
+    validate: {
+      validator: function(v) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      },
+      message: props => `${props.value} is not a valid email address!`
+    }
   },
   password: {
     type: String,
@@ -22,7 +28,13 @@ const hotelSchema = new mongoose.Schema({
   },
   phoneNumber: {
     type: String,
-    required: true
+    required: true,
+    validate: {
+      validator: function(v) {
+        return /^(?:\+91|91)?[6-9]\d{9}$/.test(v);
+      },
+      message: props => `${props.value} is not a valid Indian mobile number!`
+    }
   },
   resetPasswordToken: String,
   resetPasswordExpires: Date

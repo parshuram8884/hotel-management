@@ -48,7 +48,7 @@ function GuestDashboard() {
   const handleLogout = () => {
     localStorage.removeItem('guestToken');
     localStorage.removeItem('guestInfo');
-    navigate('/');
+    navigate('/guest/login/:hotelId');
     toast.success('Logged out successfully');
   };
 

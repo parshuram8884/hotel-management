@@ -11,7 +11,13 @@ const guestSchema = new mongoose.Schema({
   },
   mobileNumber: {
     type: String,
-    required: true
+    required: true,
+    validate: {
+      validator: function(v) {
+        return /^(?:\+91|91)?[6-9]\d{9}$/.test(v);
+      },
+      message: props => `${props.value} is not a valid Indian mobile number!`
+    }
   },
   checkOutDate: {
     type: Date,

@@ -25,8 +25,31 @@ const SignUp = () => {
     });
   };
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone) => {
+    // Allows formats: +91XXXXXXXXXX, 91XXXXXXXXXX, XXXXXXXXXX (10 digits)
+    const phoneRegex = /^(?:\+91|91)?[6-9]\d{9}$/;
+    return phoneRegex.test(phone);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate email
+    if (!validateEmail(formData.email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+
+    // Validate phone number
+    if (!validatePhone(formData.phoneNumber)) {
+      toast.error('Please enter a valid 10-digit Indian mobile number');
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       toast.error('Passwords do not match');
