@@ -63,8 +63,15 @@ const foodController = {
   getFoodItems: async (req, res) => {
     try {
       const { hotelId } = req.params;
-      // Remove the duplicate hotelId condition and isAvailable filter
-      const foods = await Food.find({ hotelId }).sort({ name: 1 });
+      const isStaffRequest = req.headers.authorization?.startsWith('Bearer');
+      
+      // For staff, show all items. For guests, show only available items
+      const query = {
+        hotelId,
+        ...(isStaffRequest ? {} : { isAvailable: true })
+      };
+
+      const foods = await Food.find(query).sort({ name: 1 });
       res.json(foods);
     } catch (error) {
       console.error('Error fetching food items:', error);

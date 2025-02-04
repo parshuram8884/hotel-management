@@ -23,14 +23,18 @@ const FoodManagement = () => {
     try {
       const hotelInfo = JSON.parse(localStorage.getItem('hotelInfo'));
       const token = localStorage.getItem('token');
+      console.log('Token:', token); // Debug log
+      console.log('Hotel Info:', hotelInfo); // Debug log
+      
       const response = await axios.get(
-        `https://hotel-management-server-a3o3.onrender.com/api/food/hotel/${hotelInfo.id}`, // Updated endpoint
+        `https://hotel-management-server-a3o3.onrender.com/api/food/hotel/${hotelInfo.id}`,
         {
-          headers: { Authorization: `Bearer ${token}` } // Added Bearer token
+          headers: { 
+            'Authorization': `Bearer ${token}`
+          }
         }
       );
-      console.log('Fetched foods:', response.data); // Debug log
-      setFoods(response.data);
+      setFoods(response.data.filter(food => food.hotelId === hotelInfo.id));
     } catch (error) {
       console.error('Error fetching foods:', error);
       toast.error('Error loading food items');
@@ -62,12 +66,20 @@ const FoodManagement = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post(
-        'https://hotel-management-server-a3o3.onrender.com/api/food/',
+      const hotelInfo = JSON.parse(localStorage.getItem('hotelInfo'));
+      
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name.toUpperCase());
+      formDataToSend.append('price', formData.price);
+      formDataToSend.append('image', formData.image);
+      formDataToSend.append('hotelId', hotelInfo.id); // Add hotelId
+
+      const response = await axios.post(
+        'https://hotel-management-server-a3o3.onrender.com/api/food',
         formDataToSend,
         {
           headers: { 
-            Authorization: `Bearer ${token}`, // Add Bearer
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'multipart/form-data'
           }
         }

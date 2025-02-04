@@ -3,7 +3,6 @@ const Hotel = require('../model/Hotel');
 
 const auth = async (req, res, next) => {
   try {
-    // Check for token in cookie first, then header
     const token = req.cookies.staffToken || 
                  req.header('Authorization')?.replace('Bearer ', '');
 
