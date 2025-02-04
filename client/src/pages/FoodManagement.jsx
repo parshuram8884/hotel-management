@@ -22,8 +22,12 @@ const FoodManagement = () => {
   const fetchFoods = async () => {
     try {
       const hotelInfo = JSON.parse(localStorage.getItem('hotelInfo'));
+      const token = localStorage.getItem('token');
       const response = await axios.get(
-        `https://hotel-management-server-a3o3.onrender.com/api/food/${hotelInfo.id}`
+        `https://hotel-management-server-a3o3.onrender.com/api/food/menu/${hotelInfo.id}`, // Updated endpoint
+        {
+          headers: { Authorization: token }
+        }
       );
       setFoods(response.data);
     } catch (error) {
@@ -213,7 +217,7 @@ const FoodManagement = () => {
                       <tr key={food._id}>
                         <td>
                           <img
-                            src={`http://localhost:5000${food.imageUrl}`}
+                            src={`https://hotel-management-server-a3o3.onrender.com${food.imageUrl}`} // Updated image URL
                             alt={food.name}
                             style={{ width: '50px', height: '50px', objectFit: 'cover' }}
                             className="rounded"
@@ -255,4 +259,4 @@ const FoodManagement = () => {
   );
 };
 
-export default FoodManagement; 
+export default FoodManagement;

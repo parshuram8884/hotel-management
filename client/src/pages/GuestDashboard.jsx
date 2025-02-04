@@ -46,9 +46,10 @@ function GuestDashboard() {
   }, [navigate]);
 
   const handleLogout = () => {
+    const hotelId = guestInfo?.hotelId; // Store hotelId before clearing localStorage
     localStorage.removeItem('guestToken');
     localStorage.removeItem('guestInfo');
-    navigate('/guest/login/:hotelId');
+    navigate(`/guest/login/${hotelId}`); // Navigate with the correct hotelId
     toast.success('Logged out successfully');
   };
 
