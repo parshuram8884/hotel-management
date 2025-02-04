@@ -63,7 +63,7 @@ const FoodManagement = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        'https://hotel-management-server-a3o3.onrender.com/api/food',
+        'https://hotel-management-server-a3o3.onrender.com/api/food/',
         formDataToSend,
         {
           headers: { 
