@@ -26,7 +26,7 @@ const FoodManagement = () => {
       const response = await axios.get(
         `https://hotel-management-server-a3o3.onrender.com/api/food/menu/${hotelInfo.id}`, // Updated endpoint
         {
-          headers: { Authorization: token }
+          headers: { Authorization: `Bearer ${token}` } // Added Bearer token
         }
       );
       setFoods(response.data);

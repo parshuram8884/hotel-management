@@ -66,8 +66,8 @@ const foodController = {
   // Get all food items for a hotel
   getFoodItems: async (req, res) => {
     try {
-      const hotelId = req.params.hotelId;
       const foods = await Food.find({ 
+        hotelId: req.params.hotelId,
         hotelId,
         isAvailable: true 
       }).sort({ name: 1 });

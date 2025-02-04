@@ -46,10 +46,16 @@ function GuestDashboard() {
   }, [navigate]);
 
   const handleLogout = () => {
-    const hotelId = guestInfo?.hotelId; // Store hotelId before clearing localStorage
+    const currentHotelId = guestInfo?.hotelId; // Store hotel ID before clearing
     localStorage.removeItem('guestToken');
     localStorage.removeItem('guestInfo');
-    navigate(`/guest/login/${hotelId}`); // Navigate with the correct hotelId
+    
+    // Navigate to the correct URL
+    if (currentHotelId) {
+      navigate(`/guest/login/${currentHotelId}`);
+    } else {
+      navigate('/'); // Fallback to home if no hotel ID
+    }
     toast.success('Logged out successfully');
   };
 

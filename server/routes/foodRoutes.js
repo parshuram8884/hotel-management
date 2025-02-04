@@ -15,6 +15,8 @@ router.get('/orders/:hotelId', auth, foodController.getHotelOrders); // Updated 
 // Fix: Update the status update route
 router.patch('/orders/:orderId/update-status', auth, foodController.updateOrderStatus);
 
+
+
 // Guest routes
 router.post('/orders', guestAuth, foodController.placeOrder);
 router.get('/orders/active/:guestId', guestAuth, foodController.getGuestOrders);
