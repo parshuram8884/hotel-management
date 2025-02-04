@@ -9,7 +9,8 @@ const upload = require('../config/multer');
 router.post('/', auth, upload.single('image'), foodController.addFood);
 router.patch('/:foodId', auth, upload.single('image'), foodController.updateFood);
 router.delete('/:foodId', auth, foodController.deleteFood);
-router.get('/menu/:hotelId', foodController.getFoodItems);
+router.get('/hotel/:hotelId', auth, foodController.getFoodItems); // Add this route for staff
+router.get('/menu/:hotelId', foodController.getFoodItems);  // Keep this for guests
 // Fix: Change the route to match the controller
 router.get('/orders/:hotelId', auth, foodController.getHotelOrders); // Updated route
 // Fix: Update the status update route

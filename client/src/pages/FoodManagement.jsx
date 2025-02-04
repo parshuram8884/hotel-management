@@ -24,11 +24,12 @@ const FoodManagement = () => {
       const hotelInfo = JSON.parse(localStorage.getItem('hotelInfo'));
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        `https://hotel-management-server-a3o3.onrender.com/api/food/menu/${hotelInfo.id}`, // Updated endpoint
+        `https://hotel-management-server-a3o3.onrender.com/api/food/hotel/${hotelInfo.id}`, // Updated endpoint
         {
           headers: { Authorization: `Bearer ${token}` } // Added Bearer token
         }
       );
+      console.log('Fetched foods:', response.data); // Debug log
       setFoods(response.data);
     } catch (error) {
       console.error('Error fetching foods:', error);
@@ -55,7 +56,7 @@ const FoodManagement = () => {
 
     setAdding(true);
     const formDataToSend = new FormData();
-    formDataToSend.append('name', formData.name);
+    formDataToSend.append('name', formData.name.toUpperCase()); // Convert to uppercase
     formDataToSend.append('price', formData.price);
     formDataToSend.append('image', formData.image);
 
@@ -66,7 +67,7 @@ const FoodManagement = () => {
         formDataToSend,
         {
           headers: { 
-            Authorization: token,
+            Authorization: `Bearer ${token}`, // Add Bearer
             'Content-Type': 'multipart/form-data'
           }
         }
@@ -75,10 +76,10 @@ const FoodManagement = () => {
       toast.success('Food item added successfully');
       setFormData({ name: '', price: '', image: null });
       setImagePreview(null);
-      fetchFoods();
+      fetchFoods(); // Refresh the list
     } catch (error) {
       console.error('Error adding food:', error);
-      toast.error('Error adding food item');
+      toast.error(error.response?.data?.message || 'Error adding food item');
     } finally {
       setAdding(false);
     }

@@ -32,23 +32,19 @@ const foodController = {
   // Add new food item
   addFood: async (req, res) => {
     try {
-      if (!req.hotel || !req.hotel._id) {
-        return res.status(401).json({ message: 'Hotel authentication required' });
-      }
-
       const { name, price } = req.body;
-      
+      const hotelId = req.hotel._id; // Get hotel ID from auth middleware
+
       if (!req.file) {
         return res.status(400).json({ message: 'Please upload an image' });
       }
 
-      const imageUrl = `/uploads/food-images/${req.file.filename}`;
-      
       const food = new Food({
         name,
         price,
-        imageUrl,
-        hotelId: req.hotel._id
+        imageUrl: '/uploads/food-images/' + req.file.filename,
+        hotelId,
+        isAvailable: true // Ensure it's available by default
       });
 
       await food.save();
@@ -66,11 +62,9 @@ const foodController = {
   // Get all food items for a hotel
   getFoodItems: async (req, res) => {
     try {
-      const foods = await Food.find({ 
-        hotelId: req.params.hotelId,
-        hotelId,
-        isAvailable: true 
-      }).sort({ name: 1 });
+      const { hotelId } = req.params;
+      // Remove the duplicate hotelId condition and isAvailable filter
+      const foods = await Food.find({ hotelId }).sort({ name: 1 });
       res.json(foods);
     } catch (error) {
       console.error('Error fetching food items:', error);
