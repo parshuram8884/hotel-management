@@ -22,26 +22,13 @@ const FoodManagement = () => {
   const fetchFoods = async () => {
     try {
       const hotelInfo = JSON.parse(localStorage.getItem('hotelInfo'));
-      const token = localStorage.getItem('token');
-      
       const response = await axios.get(
-        `https://hotel-management-server-a3o3.onrender.com/api/food/hotel/${hotelInfo.id}`,
-        {
-          headers: { 
-            'Authorization': `Bearer ${token}`  // Make sure Bearer format is consistent
-          }
-        }
+        `https://hotel-management-server-a3o3.onrender.com/api/food/${hotelInfo.id}`
       );
-      console.log('Response:', response.data); // Debug log
       setFoods(response.data);
     } catch (error) {
-      // Better error handling
-      console.error('Error details:', error.response?.data);
-      toast.error(error.response?.data?.message || 'Failed to load food items');
-      if (error.response?.status === 401) {
-        // Redirect to login if unauthorized
-        navigate('/');
-      }
+      console.error('Error fetching foods:', error);
+      toast.error('Error loading food items');
     } finally {
       setLoading(false);
     }
@@ -63,21 +50,19 @@ const FoodManagement = () => {
     }
 
     setAdding(true);
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', formData.name);
+    formDataToSend.append('price', formData.price);
+    formDataToSend.append('image', formData.image);
+
     try {
       const token = localStorage.getItem('token');
-      const hotelInfo = JSON.parse(localStorage.getItem('hotelInfo'));
-      
-      const formDataToSend = new FormData();
-      formDataToSend.append('name', formData.name.toUpperCase());
-      formDataToSend.append('price', formData.price);
-      formDataToSend.append('image', formData.image);
-
-      const response = await axios.post(
+      await axios.post(
         'https://hotel-management-server-a3o3.onrender.com/api/food',
         formDataToSend,
         {
           headers: { 
-            'Authorization': `Bearer ${token}`,
+            Authorization: token,
             'Content-Type': 'multipart/form-data'
           }
         }
@@ -88,11 +73,8 @@ const FoodManagement = () => {
       setImagePreview(null);
       fetchFoods();
     } catch (error) {
-      console.error('Error details:', error.response?.data);
-      if (error.response?.status === 401) {
-        navigate('/');
-      }
-      toast.error(error.response?.data?.message || 'Failed to add food item');
+      console.error('Error adding food:', error);
+      toast.error('Error adding food item');
     } finally {
       setAdding(false);
     }
@@ -105,16 +87,15 @@ const FoodManagement = () => {
         `https://hotel-management-server-a3o3.onrender.com/api/food/${foodId}`,
         { isAvailable },
         {
-          headers: { 
-            'Authorization': `Bearer ${token}` // Fix token format
-          }
+          headers: { Authorization: token }
         }
       );
+
       toast.success('Food availability updated');
       fetchFoods();
     } catch (error) {
-      console.error('Error details:', error.response?.data);
-      toast.error(error.response?.data?.message || 'Failed to update food item');
+      console.error('Error updating food:', error);
+      toast.error('Error updating food item');
     }
   };
 
@@ -126,16 +107,15 @@ const FoodManagement = () => {
       await axios.delete(
         `https://hotel-management-server-a3o3.onrender.com/api/food/${foodId}`,
         {
-          headers: { 
-            'Authorization': `Bearer ${token}` // Fix token format
-          }
+          headers: { Authorization: token }
         }
       );
+
       toast.success('Food item deleted');
       fetchFoods();
     } catch (error) {
-      console.error('Error details:', error.response?.data);
-      toast.error(error.response?.data?.message || 'Failed to delete food item');
+      console.error('Error deleting food:', error);
+      toast.error('Error deleting food item');
     }
   };
 
@@ -233,7 +213,7 @@ const FoodManagement = () => {
                       <tr key={food._id}>
                         <td>
                           <img
-                            src={`https://hotel-management-server-a3o3.onrender.com${food.imageUrl}`} // Updated image URL
+                            src={`http://localhost:5000${food.imageUrl}`}
                             alt={food.name}
                             style={{ width: '50px', height: '50px', objectFit: 'cover' }}
                             className="rounded"
@@ -275,4 +255,4 @@ const FoodManagement = () => {
   );
 };
 
-export default FoodManagement;
+export default FoodManagement; 

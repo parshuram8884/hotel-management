@@ -79,7 +79,7 @@ const foodController = {
       // Transform each food item to include full image URL
       const transformedFoods = foods.map(food => ({
         ...food.toObject(),
-        imageUrl: `/uploads/${path.basename(food.imageUrl)}`
+        imageUrl: `https://hotel-management-server-a3o3.onrender.com/uploads/food-images/${path.basename(food.imageUrl)}`
       }));
 
       console.log('Sending foods:', transformedFoods); // Debug log
