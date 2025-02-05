@@ -227,11 +227,11 @@ const FoodManagement = () => {
                           <img
                             src={food.imageUrl} // Use the transformed URL directly from the backend
                             alt={food.name}
-                            style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                            style={{ width: '25px', height: '25px', objectFit: 'cover' }}
                             className="rounded"
                             onError={(e) => {
                               e.target.onerror = null;
-                              e.target.src = 'https://via.placeholder.com/50x50?text=Image+Not+Found';
+                              e.target.src = 'https://via.placeholder.com/25x25?text=Image+Not+Found';
                             }}
                           />
                         </td>
