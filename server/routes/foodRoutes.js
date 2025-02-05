@@ -11,8 +11,10 @@ router.patch('/:foodId', auth, upload.single('image'), foodController.updateFood
 router.delete('/:foodId', auth, foodController.deleteFood);
 
 // Update route order to handle both staff and guest requests
+// Staff route - shows all items
 router.get('/hotel/:hotelId', auth, foodController.getFoodItems);  // Staff route
-router.get('/menu/:hotelId', foodController.getFoodItems);         // Guest route
+// Single route for getting food items - only shows available items
+router.get('/menu/:hotelId', foodController.getFoodItems);
 
 // Fix: Change the route to match the controller
 router.get('/orders/:hotelId', auth, foodController.getHotelOrders); // Updated route

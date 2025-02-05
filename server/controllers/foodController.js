@@ -59,18 +59,11 @@ const foodController = {
     }
   },
 
-  // Get all food items for a hotel
+  // Simplify getFoodItems
   getFoodItems: async (req, res) => {
     try {
       const { hotelId } = req.params;
-      const isStaffRequest = req.headers.authorization?.startsWith('Bearer');
-      
-      // For staff, show all items. For guests, show only available items
-      const query = {
-        hotelId,
-        ...(isStaffRequest ? {} : { isAvailable: true })
-      };
-
+      const query = { hotelId, isAvailable: true };
       const foods = await Food.find(query).sort({ name: 1 });
       res.json(foods);
     } catch (error) {
