@@ -9,10 +9,10 @@ const upload = require('../config/multer');
 router.post('/', auth, upload.single('image'), foodController.addFood);
 router.patch('/:foodId', auth, upload.single('image'), foodController.updateFood);
 router.delete('/:foodId', auth, foodController.deleteFood);
-router.get('/hotel/:hotelId', auth, foodController.getFoodItems);
+router.get('/hotel/:hotelId', auth, foodController.getFoodItems); // Staff route with auth
 
 // Guest route - no auth required
-router.get('/menu/:hotelId', foodController.getFoodItems);
+router.get('/menu/:hotelId', foodController.getFoodItems);  // Public route for guests
 
 // Fix: Change the route to match the controller
 router.get('/orders/:hotelId', auth, foodController.getHotelOrders); // Updated route

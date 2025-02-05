@@ -22,13 +22,25 @@ const FoodManagement = () => {
   const fetchFoods = async () => {
     try {
       const hotelInfo = JSON.parse(localStorage.getItem('hotelInfo'));
+      const token = localStorage.getItem('token');
+      console.log('Fetching foods with:', { hotelId: hotelInfo.id, token }); // Debug log
+
       const response = await axios.get(
-        `https://hotel-management-server-a3o3.onrender.com/api/food/hotel/${hotelInfo.id}`
+        `https://hotel-management-server-a3o3.onrender.com/api/food/hotel/${hotelInfo.id}`,
+        {
+          headers: { 
+            'Authorization': `Bearer ${token}` // Make sure Bearer is added
+          }
+        }
       );
+      console.log('Foods response:', response.data); // Debug log
       setFoods(response.data);
     } catch (error) {
-      console.error('Error fetching foods:', error);
-      toast.error('Error loading food items');
+      console.error('Full error:', error.response || error); // Enhanced error logging
+      toast.error(error.response?.data?.message || 'Error loading food items');
+      if (error.response?.status === 401) {
+        navigate('/');
+      }
     } finally {
       setLoading(false);
     }
