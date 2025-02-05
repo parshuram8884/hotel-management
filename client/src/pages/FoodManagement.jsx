@@ -23,7 +23,7 @@ const FoodManagement = () => {
     try {
       const hotelInfo = JSON.parse(localStorage.getItem('hotelInfo'));
       const response = await axios.get(
-        `https://hotel-management-server-a3o3.onrender.com/api/food/${hotelInfo.id}`
+        `https://hotel-management-server-a3o3.onrender.com/api/food/hotel/${hotelInfo.id}`
       );
       setFoods(response.data);
     } catch (error) {
@@ -213,10 +213,14 @@ const FoodManagement = () => {
                       <tr key={food._id}>
                         <td>
                           <img
-                            src={`http://localhost:5000${food.imageUrl}`}
+                            src={food.imageUrl} // Use the transformed URL directly from the backend
                             alt={food.name}
                             style={{ width: '50px', height: '50px', objectFit: 'cover' }}
                             className="rounded"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = 'https://via.placeholder.com/50x50?text=Image+Not+Found';
+                            }}
                           />
                         </td>
                         <td>{food.name}</td>
@@ -255,4 +259,4 @@ const FoodManagement = () => {
   );
 };
 
-export default FoodManagement; 
+export default FoodManagement;
