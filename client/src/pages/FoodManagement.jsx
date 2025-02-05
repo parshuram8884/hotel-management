@@ -227,7 +227,7 @@ const FoodManagement = () => {
                           <img
                             src={food.imageUrl} // Use the transformed URL directly from the backend
                             alt={food.name}
-                            style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                            style={{ width: '75px', height: '75px', objectFit: 'cover' }}
                             className="rounded"
                             onError={(e) => {
                               e.target.onerror = null;
