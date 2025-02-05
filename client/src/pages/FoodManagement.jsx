@@ -105,15 +105,16 @@ const FoodManagement = () => {
         `https://hotel-management-server-a3o3.onrender.com/api/food/${foodId}`,
         { isAvailable },
         {
-          headers: { Authorization: token }
+          headers: { 
+            'Authorization': `Bearer ${token}` // Fix token format
+          }
         }
       );
-
       toast.success('Food availability updated');
       fetchFoods();
     } catch (error) {
-      console.error('Error updating food:', error);
-      toast.error('Error updating food item');
+      console.error('Error details:', error.response?.data);
+      toast.error(error.response?.data?.message || 'Failed to update food item');
     }
   };
 
@@ -125,15 +126,16 @@ const FoodManagement = () => {
       await axios.delete(
         `https://hotel-management-server-a3o3.onrender.com/api/food/${foodId}`,
         {
-          headers: { Authorization: token }
+          headers: { 
+            'Authorization': `Bearer ${token}` // Fix token format
+          }
         }
       );
-
       toast.success('Food item deleted');
       fetchFoods();
     } catch (error) {
-      console.error('Error deleting food:', error);
-      toast.error('Error deleting food item');
+      console.error('Error details:', error.response?.data);
+      toast.error(error.response?.data?.message || 'Failed to delete food item');
     }
   };
 

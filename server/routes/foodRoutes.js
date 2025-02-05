@@ -5,15 +5,13 @@ const { auth } = require('../middleware/auth');
 const guestAuth = require('../middleware/authMiddleware');
 const upload = require('../config/multer');
 
-// Staff routes
+// Staff routes - ensure auth middleware is applied correctly
 router.post('/', auth, upload.single('image'), foodController.addFood);
 router.patch('/:foodId', auth, upload.single('image'), foodController.updateFood);
 router.delete('/:foodId', auth, foodController.deleteFood);
+router.get('/hotel/:hotelId', auth, foodController.getFoodItems);
 
-// Update route order to handle both staff and guest requests
-// Staff route - shows all items
-router.get('/hotel/:hotelId', auth, foodController.getFoodItems);  // Staff route
-// Single route for getting food items - only shows available items
+// Guest route - no auth required
 router.get('/menu/:hotelId', foodController.getFoodItems);
 
 // Fix: Change the route to match the controller

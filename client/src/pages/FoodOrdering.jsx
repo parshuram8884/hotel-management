@@ -131,10 +131,14 @@ const FoodOrdering = () => {
                   <div key={food._id} className="col-md-6 col-lg-4">
                     <div className="card h-100">
                       <img
-                        src={`${import.meta.env.VITE_API_URL}${food.imageUrl}`}
+                        src={`https://hotel-management-server-a3o3.onrender.com${food.imageUrl}`}
                         className="card-img-top"
                         alt={food.name}
                         style={{ height: '200px', objectFit: 'cover' }}
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://via.placeholder.com/200x200?text=Image+Not+Found';
+                        }}
                       />
                       <div className="card-body">
                         <h5 className="card-title">{food.name}</h5>

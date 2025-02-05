@@ -32,30 +32,32 @@ const foodController = {
   // Add new food item
   addFood: async (req, res) => {
     try {
-      const { name, price } = req.body;
-      const hotelId = req.hotel._id; // Get hotel ID from auth middleware
+      if (!req.hotel || !req.hotel._id) {
+        return res.status(401).json({ message: 'Hotel authentication required' });
+      }
 
+      const { name, price } = req.body;
       if (!req.file) {
         return res.status(400).json({ message: 'Please upload an image' });
       }
 
       const food = new Food({
-        name,
-        price,
-        imageUrl: '/uploads/food-images/' + req.file.filename,
-        hotelId,
-        isAvailable: true // Ensure it's available by default
+        name: name.toUpperCase(),
+        price: Number(price),
+        imageUrl: `/uploads/food-images/${req.file.filename}`,
+        hotelId: req.hotel._id,
+        isAvailable: true
       });
 
       await food.save();
+      console.log('Food added:', food); // Debug log
       res.status(201).json({ message: 'Food item added successfully', food });
     } catch (error) {
-      // Delete uploaded file if there's an error
       if (req.file) {
         fs.unlinkSync(req.file.path);
       }
       console.error('Error adding food:', error);
-      res.status(500).json({ message: 'Error adding food item' });
+      res.status(500).json({ message: 'Error adding food item', error: error.message });
     }
   },
 
@@ -63,9 +65,25 @@ const foodController = {
   getFoodItems: async (req, res) => {
     try {
       const { hotelId } = req.params;
-      const query = { hotelId, isAvailable: true };
+      
+      // Basic query with hotelId
+      const query = { hotelId };
+
+      // Add condition for URLs containing 'menu'
+      if (req.path.includes('/menu')) {
+        query.isAvailable = true;
+      }
+
       const foods = await Food.find(query).sort({ name: 1 });
-      res.json(foods);
+
+      // Transform each food item to include full image URL
+      const transformedFoods = foods.map(food => ({
+        ...food.toObject(),
+        imageUrl: `/uploads/${path.basename(food.imageUrl)}`
+      }));
+
+      console.log('Sending foods:', transformedFoods); // Debug log
+      res.json(transformedFoods);
     } catch (error) {
       console.error('Error fetching food items:', error);
       res.status(500).json({ message: 'Error fetching food items' });
