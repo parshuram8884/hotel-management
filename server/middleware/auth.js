@@ -3,8 +3,12 @@ const Hotel = require('../model/Hotel');
 
 const auth = async (req, res, next) => {
   try {
-    const token = req.cookies.staffToken || 
-                 req.header('Authorization')?.replace('Bearer ', '');
+    let token = req.cookies.staffToken || req.header('Authorization');
+    
+    // Remove 'Bearer ' prefix if it exists
+    if (token && token.startsWith('Bearer ')) {
+      token = token.replace('Bearer ', '');
+    }
 
     if (!token) {
       return res.status(401).json({ message: 'Authentication required' });

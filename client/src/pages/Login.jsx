@@ -19,8 +19,8 @@ const Login = () => {
         password
       })
 
-      // Store token with Bearer prefix and hotel info
-      localStorage.setItem('token', `Bearer ${response.data.token}`);
+      // Store token with 'Bearer ' prefix
+      localStorage.setItem('token', response.data.token);
       localStorage.setItem('hotelInfo', JSON.stringify(response.data.hotel));
 
       toast.success('Login successful!')

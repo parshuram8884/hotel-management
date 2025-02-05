@@ -59,11 +59,6 @@ const FoodManagement = () => {
     }
 
     setAdding(true);
-    const formDataToSend = new FormData();
-    formDataToSend.append('name', formData.name.toUpperCase()); // Convert to uppercase
-    formDataToSend.append('price', formData.price);
-    formDataToSend.append('image', formData.image);
-
     try {
       const token = localStorage.getItem('token');
       const hotelInfo = JSON.parse(localStorage.getItem('hotelInfo'));
@@ -72,15 +67,13 @@ const FoodManagement = () => {
       formDataToSend.append('name', formData.name.toUpperCase());
       formDataToSend.append('price', formData.price);
       formDataToSend.append('image', formData.image);
-      formDataToSend.append('hotelId', hotelInfo.id); // Add hotelId
 
       const response = await axios.post(
         'https://hotel-management-server-a3o3.onrender.com/api/food',
         formDataToSend,
         {
           headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data'
+            'Authorization': `Bearer ${token}` // Fix token format
           }
         }
       );
@@ -88,9 +81,9 @@ const FoodManagement = () => {
       toast.success('Food item added successfully');
       setFormData({ name: '', price: '', image: null });
       setImagePreview(null);
-      fetchFoods(); // Refresh the list
+      fetchFoods();
     } catch (error) {
-      console.error('Error adding food:', error);
+      console.error('Error details:', error.response); // Add detailed error logging
       toast.error(error.response?.data?.message || 'Error adding food item');
     } finally {
       setAdding(false);
