@@ -23,21 +23,25 @@ const FoodManagement = () => {
     try {
       const hotelInfo = JSON.parse(localStorage.getItem('hotelInfo'));
       const token = localStorage.getItem('token');
-      console.log('Token:', token); // Debug log
-      console.log('Hotel Info:', hotelInfo); // Debug log
       
       const response = await axios.get(
         `https://hotel-management-server-a3o3.onrender.com/api/food/hotel/${hotelInfo.id}`,
         {
           headers: { 
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`  // Make sure Bearer format is consistent
           }
         }
       );
-      setFoods(response.data.filter(food => food.hotelId === hotelInfo.id));
+      console.log('Response:', response.data); // Debug log
+      setFoods(response.data);
     } catch (error) {
-      console.error('Error fetching foods:', error);
-      toast.error('Error loading food items');
+      // Better error handling
+      console.error('Error details:', error.response?.data);
+      toast.error(error.response?.data?.message || 'Failed to load food items');
+      if (error.response?.status === 401) {
+        // Redirect to login if unauthorized
+        navigate('/');
+      }
     } finally {
       setLoading(false);
     }
@@ -73,7 +77,8 @@ const FoodManagement = () => {
         formDataToSend,
         {
           headers: { 
-            'Authorization': `Bearer ${token}` // Fix token format
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
           }
         }
       );
@@ -83,8 +88,11 @@ const FoodManagement = () => {
       setImagePreview(null);
       fetchFoods();
     } catch (error) {
-      console.error('Error details:', error.response); // Add detailed error logging
-      toast.error(error.response?.data?.message || 'Error adding food item');
+      console.error('Error details:', error.response?.data);
+      if (error.response?.status === 401) {
+        navigate('/');
+      }
+      toast.error(error.response?.data?.message || 'Failed to add food item');
     } finally {
       setAdding(false);
     }

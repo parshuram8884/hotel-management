@@ -19,14 +19,14 @@ const Login = () => {
         password
       })
 
-      // Store token with 'Bearer ' prefix
+      // Store token without Bearer prefix (will be added in requests)
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('hotelInfo', JSON.stringify(response.data.hotel));
 
       toast.success('Login successful!')
       navigate('/staff/dashboard')
     } catch (error) {
-      console.error('Login error:', error)
+      console.error('Login error:', error.response?.data)
       toast.error(error.response?.data?.message || 'Login failed')
     } finally {
       setLoading(false)

@@ -3,20 +3,21 @@ const Hotel = require('../model/Hotel');
 
 const auth = async (req, res, next) => {
   try {
-    let token = req.cookies.staffToken || req.header('Authorization');
-    
-    // Remove 'Bearer ' prefix if it exists
-    if (token && token.startsWith('Bearer ')) {
-      token = token.replace('Bearer ', '');
-    }
+    const authHeader = req.header('Authorization');
+    const token = authHeader?.startsWith('Bearer ') 
+      ? authHeader.substring(7) 
+      : req.cookies.staffToken;
 
     if (!token) {
       return res.status(401).json({ message: 'Authentication required' });
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded.hotelId) {
+      return res.status(401).json({ message: 'Invalid token format' });
+    }
+
     const hotel = await Hotel.findById(decoded.hotelId);
-    
     if (!hotel) {
       return res.status(401).json({ message: 'Hotel not found' });
     }
@@ -26,33 +27,10 @@ const auth = async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
-    res.status(401).json({ message: 'Authentication failed' });
+    res.status(401).json({ message: 'Authentication failed', error: error.message });
   }
 };
 
-const guestAuth = async (req, res, next) => {
-  try {
-    const token = req.cookies.guestToken || 
-                 req.header('Authorization')?.replace('Bearer ', '');
 
-    if (!token) {
-      return res.status(401).json({ message: 'Guest authentication required' });
-    }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // Check if past checkout date
-    if (new Date(decoded.checkOutDate) < new Date()) {
-      res.clearCookie('guestToken');
-      return res.status(401).json({ message: 'Stay period has expired' });
-    }
-
-    req.guestId = decoded.guestId;
-    next();
-  } catch (error) {
-    console.error('Guest auth middleware error:', error);
-    res.status(401).json({ message: 'Guest authentication failed' });
-  }
-};
-
-module.exports = { auth, guestAuth };
+module.exports = { auth };
