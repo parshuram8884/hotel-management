@@ -225,7 +225,7 @@ const FoodManagement = () => {
                       <tr key={food._id}>
                         <td>
                           <img
-                            src=`https://hotel-management-server-a3o3.onrender.com/${food.imageUrl}` // Use the transformed URL directly from the backend
+                            src={food.imageUrl} // Use the transformed URL directly from the backend
                             alt={food.name}
                             style={{ width: '75px', height: '75px', objectFit: 'cover' }}
                             className="rounded"
