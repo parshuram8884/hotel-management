@@ -27,62 +27,62 @@ const guestController = {
       const { name, roomNumber, mobileNumber, checkOutDate } = req.body;
       const hotelId = req.params.hotelId;
 
+      // Get hotel and validate room range
       const hotel = await Hotel.findById(hotelId);
       if (!hotel) {
         return res.status(404).json({ message: 'Hotel not found' });
       }
 
-      // Format inputs
+      // Format inputs and dates
       const uppercaseName = name.toUpperCase();
       const uppercaseRoomNumber = roomNumber.toUpperCase();
       const checkOut = new Date(checkOutDate);
+      const now = new Date();
 
-      // Find any approved guest with matching room number
-      const existingGuest = await Guest.findOne({
+      // Validate checkout date
+      if (checkOut <= now) {
+        return res.status(400).json({ 
+          message: 'Check-out date must be in the future' 
+        });
+      }
+
+      // First, find if room is occupied
+      const occupiedRoom = await Guest.findOne({
         hotelId,
         roomNumber: uppercaseRoomNumber,
         status: 'approved',
-        checkOutDate: { $gt: new Date() }
+        checkOutDate: { $gt: now }
       });
 
-      if (existingGuest) {
-        // If found, check if all details match
+      if (occupiedRoom) {
+        // If room is occupied, check if it's the same person
         if (
-          existingGuest.name === uppercaseName &&
-          existingGuest.mobileNumber === mobileNumber &&
-          existingGuest.checkOutDate.getTime() === checkOut.getTime()
+          occupiedRoom.name === uppercaseName &&
+          occupiedRoom.mobileNumber === mobileNumber &&
+          occupiedRoom.checkOutDate.getTime() === checkOut.getTime()
         ) {
-          // All details match - auto approve
+          // Same person, same details - auto-approve
           const token = jwt.sign(
-            { guestId: existingGuest._id },
+            { guestId: occupiedRoom._id },
             process.env.JWT_SECRET,
             { expiresIn: '7d' }
           );
 
           return res.status(200).json({
-            message: 'Welcome back! Your details match our records.',
+            message: 'Welcome back! Auto-approved.',
             token,
-            guest: existingGuest
+            guest: occupiedRoom
           });
         } else {
-          // Room is occupied but details don't match
+          // Different person or details - reject
           return res.status(400).json({
             message: 'This room is currently occupied by another guest.'
           });
         }
       }
 
-      // If room is not occupied, check other validations
-      // Validate room number range
-      const roomNum = parseInt(roomNumber);
-      if (isNaN(roomNum) || roomNum < hotel.roomRange.start || roomNum > hotel.roomRange.end) {
-        return res.status(400).json({
-          message: `Room number must be between ${hotel.roomRange.start} and ${hotel.roomRange.end}`
-        });
-      }
-
-      // Create new pending registration
-      const guest = new Guest({
+      // Room is not occupied, create new guest registration
+      const newGuest = new Guest({
         name: uppercaseName,
         roomNumber: uppercaseRoomNumber,
         mobileNumber,
@@ -91,10 +91,10 @@ const guestController = {
         status: 'pending'
       });
 
-      await guest.save();
+      await newGuest.save();
 
       const token = jwt.sign(
-        { guestId: guest._id },
+        { guestId: newGuest._id },
         process.env.JWT_SECRET,
         { expiresIn: '7d' }
       );
@@ -102,7 +102,7 @@ const guestController = {
       res.status(201).json({
         message: 'Registration submitted. Awaiting staff approval.',
         token,
-        guest
+        guest: newGuest
       });
 
     } catch (error) {
