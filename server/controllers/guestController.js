@@ -27,6 +27,20 @@ const guestController = {
       const { name, roomNumber, mobileNumber, checkOutDate } = req.body;
       const hotelId = req.params.hotelId;
 
+      // Get hotel settings to check room range
+      const hotel = await Hotel.findById(hotelId);
+      if (!hotel) {
+        return res.status(404).json({ message: 'Hotel not found' });
+      }
+
+      // Validate room number is within hotel's range
+      const roomNum = parseInt(roomNumber);
+      if (isNaN(roomNum) || roomNum < hotel.roomRange.start || roomNum > hotel.roomRange.end) {
+        return res.status(400).json({
+          message: `Room number must be between ${hotel.roomRange.start} and ${hotel.roomRange.end}`
+        });
+      }
+
       // Check if room is already occupied by an approved guest
       const existingApprovedGuest = await Guest.findOne({
         hotelId,

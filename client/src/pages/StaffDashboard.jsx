@@ -14,6 +14,7 @@ function StaffDashboard() {
   const navigate = useNavigate();
   const [maxRooms, setMaxRooms] = useState(10);
   const [showSettings, setShowSettings] = useState(false);
+  const [roomRange, setRoomRange] = useState({ start: 100, end: 999 });
 
   useEffect(() => {
     fetchApprovedGuests();
@@ -55,6 +56,7 @@ function StaffDashboard() {
         }
       );
       setMaxRooms(response.data.maxRooms);
+      setRoomRange(response.data.roomRange);
     } catch (error) {
       console.error('Error fetching settings:', error);
     }
@@ -62,10 +64,18 @@ function StaffDashboard() {
 
   const handleUpdateSettings = async () => {
     try {
+      if (roomRange.start >= roomRange.end) {
+        toast.error('Start room number must be less than end room number');
+        return;
+      }
+
       const token = localStorage.getItem('token');
       await axios.patch(
         'https://hotel-management-server-a3o3.onrender.com/api/auth/settings',
-        { maxRooms },
+        { 
+          maxRooms,
+          roomRange
+        },
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -190,23 +200,46 @@ function StaffDashboard() {
           <div className="card-body">
             <div className="mb-3">
               <label className="form-label">Maximum Rooms</label>
+              <input
+                type="number"
+                className="form-control mb-3"
+                value={maxRooms}
+                onChange={(e) => setMaxRooms(Math.max(1, parseInt(e.target.value)))}
+                min="1"
+                max="1000"
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Room Number Range</label>
               <div className="input-group">
                 <input
                   type="number"
                   className="form-control"
-                  value={maxRooms}
-                  onChange={(e) => setMaxRooms(Math.max(1, parseInt(e.target.value)))}
+                  placeholder="Start"
+                  value={roomRange.start}
+                  onChange={(e) => setRoomRange({ ...roomRange, start: parseInt(e.target.value) })}
                   min="1"
-                  max="1000"
+                  max="9999"
                 />
-                <button
-                  className="btn btn-primary"
-                  onClick={handleUpdateSettings}
-                >
-                  Update
-                </button>
+                <span className="input-group-text">to</span>
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="End"
+                  value={roomRange.end}
+                  onChange={(e) => setRoomRange({ ...roomRange, end: parseInt(e.target.value) })}
+                  min="1"
+                  max="9999"
+                />
               </div>
+              <small className="text-muted">Only room numbers within this range will be accepted</small>
             </div>
+            <button
+              className="btn btn-primary w-100"
+              onClick={handleUpdateSettings}
+            >
+              Update Settings
+            </button>
           </div>
         </div>
       )}

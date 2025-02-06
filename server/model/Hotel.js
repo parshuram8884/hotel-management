@@ -43,6 +43,20 @@ const hotelSchema = new mongoose.Schema({
     default: 10, // Default room limit
     min: 1,
     max: 1000
+  },
+  roomRange: {
+    start: {
+      type: Number,
+      default: 100,
+      min: 1,
+      max: 9999
+    },
+    end: {
+      type: Number,
+      default: 999,
+      min: 1,
+      max: 9999
+    }
   }
 }, { timestamps: true });
 
@@ -50,6 +64,14 @@ const hotelSchema = new mongoose.Schema({
 hotelSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+// Add validation for room range
+hotelSchema.pre('save', function(next) {
+  if (this.roomRange.start >= this.roomRange.end) {
+    next(new Error('Room range start must be less than end'));
+  }
   next();
 });
 
