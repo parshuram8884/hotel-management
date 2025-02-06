@@ -50,8 +50,18 @@ const foodController = {
       });
 
       await food.save();
-      console.log('Food added:', food); // Debug log
-      res.status(201).json({ message: 'Food item added successfully', food });
+      
+      // Include full image URL in response
+      const serverURL =   'https://hotel-management-server-a3o3.onrender.com';
+       
+
+      res.status(201).json({
+        message: 'Food item added successfully',
+        food: {
+          ...food.toObject(),
+          imageUrl: `${serverURL}${food.imageUrl}`
+        }
+      });
     } catch (error) {
       if (req.file) {
         fs.unlinkSync(req.file.path);
@@ -76,13 +86,16 @@ const foodController = {
 
       const foods = await Food.find(query).sort({ name: 1 });
 
-      // Transform each food item to include full image URL
+      // Fix image URLs to use absolute paths
+      const serverURL = 'https://hotel-management-server-a3o3.onrender.com';
+      
+
       const transformedFoods = foods.map(food => ({
         ...food.toObject(),
-        imageUrl: `https://hotel-management-server-a3o3.onrender.com/uploads/food-images/${path.basename(food.imageUrl)}`
+        imageUrl: `${serverURL}${food.imageUrl}`
       }));
 
-      console.log('Sending foods:', transformedFoods); // Debug log
+      console.log('Transformed foods with images:', transformedFoods); // Debug log
       res.json(transformedFoods);
     } catch (error) {
       console.error('Error fetching food items:', error);

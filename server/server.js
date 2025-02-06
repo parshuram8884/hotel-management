@@ -21,13 +21,18 @@ if (!fs.existsSync(uploadDir)) {
 // Middleware
 app.use(cookieParser());
 app.use(cors({
-  origin: 'https://hotel-management-client.onrender.com', // Update this to match your frontend URL
+  origin: ['https://hotel-management-client.onrender.com'],
   credentials: true
 }));
 app.use(express.json());
 
-// Serve static files from uploads directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve static files from uploads directory with proper headers
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET');
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
 
 // Debug middleware to log requests
 app.use((req, res, next) => {
