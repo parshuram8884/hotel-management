@@ -37,7 +37,13 @@ const hotelSchema = new mongoose.Schema({
     }
   },
   resetPasswordToken: String,
-  resetPasswordExpires: Date
+  resetPasswordExpires: Date,
+  maxRooms: {
+    type: Number,
+    default: 10, // Default room limit
+    min: 1,
+    max: 1000
+  }
 }, { timestamps: true });
 
 // Hash password before saving

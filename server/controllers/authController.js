@@ -185,6 +185,50 @@ const authController = {
       console.error('Reset password error:', error);
       res.status(500).json({ message: 'Server error' });
     }
+  },
+
+  getSettings: async (req, res) => {
+    try {
+      const hotel = await Hotel.findById(req.hotel._id);
+      if (!hotel) {
+        return res.status(404).json({ message: 'Hotel not found' });
+      }
+      res.json({
+        maxRooms: hotel.maxRooms
+      });
+    } catch (error) {
+      console.error('Get settings error:', error);
+      res.status(500).json({ message: 'Error fetching settings' });
+    }
+  },
+
+  updateSettings: async (req, res) => {
+    try {
+      const { maxRooms } = req.body;
+      
+      // Validate maxRooms
+      if (!maxRooms || maxRooms < 1 || maxRooms > 1000) {
+        return res.status(400).json({ 
+          message: 'Maximum rooms must be between 1 and 1000' 
+        });
+      }
+
+      const hotel = await Hotel.findById(req.hotel._id);
+      if (!hotel) {
+        return res.status(404).json({ message: 'Hotel not found' });
+      }
+
+      hotel.maxRooms = maxRooms;
+      await hotel.save();
+
+      res.json({ 
+        message: 'Settings updated successfully',
+        maxRooms: hotel.maxRooms
+      });
+    } catch (error) {
+      console.error('Update settings error:', error);
+      res.status(500).json({ message: 'Error updating settings' });
+    }
   }
 };
 

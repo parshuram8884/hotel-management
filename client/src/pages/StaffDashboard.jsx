@@ -12,9 +12,12 @@ function StaffDashboard() {
   const [loading, setLoading] = useState(true);
   const maxRoomsWarningThreshold = 5; // Configurable threshold
   const navigate = useNavigate();
+  const [maxRooms, setMaxRooms] = useState(10);
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     fetchApprovedGuests();
+    fetchHotelSettings();
     const interval = setInterval(fetchApprovedGuests, 60000); // Refresh every minute
     return () => clearInterval(interval);
   }, []);
@@ -41,6 +44,39 @@ function StaffDashboard() {
     }
   };
 
+  const fetchHotelSettings = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const hotelInfo = JSON.parse(localStorage.getItem('hotelInfo'));
+      const response = await axios.get(
+        `https://hotel-management-server-a3o3.onrender.com/api/auth/settings/${hotelInfo.id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      setMaxRooms(response.data.maxRooms);
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+    }
+  };
+
+  const handleUpdateSettings = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.patch(
+        'https://hotel-management-server-a3o3.onrender.com/api/auth/settings',
+        { maxRooms },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      toast.success('Settings updated successfully');
+      setShowSettings(false);
+    } catch (error) {
+      toast.error('Failed to update settings');
+    }
+  };
+
   const generateGuestLink = () => {
     const hotelInfo = JSON.parse(localStorage.getItem('hotelInfo'));
     if (hotelInfo && hotelInfo.id) {
@@ -53,11 +89,16 @@ function StaffDashboard() {
   };
 
   // Add search filter
-  const filteredGuests = approvedGuests.filter(guest => 
-    guest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    guest.roomNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    guest.mobileNumber.includes(searchTerm)
-  );
+  const filteredGuests = approvedGuests.filter(guest => {
+    const searchLower = searchTerm.toLowerCase();
+    const checkoutDate = new Date(guest.checkOutDate).toLocaleDateString();
+    return (
+      guest.name.toLowerCase().includes(searchLower) ||
+      guest.roomNumber.toLowerCase().includes(searchLower) ||
+      guest.mobileNumber.includes(searchTerm) ||
+      checkoutDate.includes(searchTerm)
+    );
+  });
 
   // Add room availability warning
   const remainingRooms = maxRoomsWarningThreshold - approvedGuests.length;
@@ -131,6 +172,56 @@ function StaffDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Add Settings Button */}
+      <button
+        className="btn btn-secondary mb-3"
+        onClick={() => setShowSettings(!showSettings)}
+      >
+        Hotel Settings
+      </button>
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <div className="card mb-4">
+          <div className="card-header bg-secondary text-white">
+            Hotel Settings
+          </div>
+          <div className="card-body">
+            <div className="mb-3">
+              <label className="form-label">Maximum Rooms</label>
+              <div className="input-group">
+                <input
+                  type="number"
+                  className="form-control"
+                  value={maxRooms}
+                  onChange={(e) => setMaxRooms(Math.max(1, parseInt(e.target.value)))}
+                  min="1"
+                  max="1000"
+                />
+                <button
+                  className="btn btn-primary"
+                  onClick={handleUpdateSettings}
+                >
+                  Update
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Room Warning Alert */}
+      {approvedGuests.length >= maxRooms && (
+        <div className="alert alert-danger">
+          Maximum room capacity reached ({approvedGuests.length}/{maxRooms})
+        </div>
+      )}
+      {approvedGuests.length >= maxRooms * 0.8 && approvedGuests.length < maxRooms && (
+        <div className="alert alert-warning">
+          Room capacity nearly full ({approvedGuests.length}/{maxRooms})
+        </div>
+      )}
 
       {/* Room Availability Warning */}
       {remainingRooms <= 3 && remainingRooms > 0 && (
