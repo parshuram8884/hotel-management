@@ -26,62 +26,76 @@ const guestController = {
     try {
       const { name, roomNumber, mobileNumber, checkOutDate } = req.body;
       const hotelId = req.params.hotelId;
-
-      // Get hotel and validate room range
       const hotel = await Hotel.findById(hotelId);
+      
       if (!hotel) {
         return res.status(404).json({ message: 'Hotel not found' });
       }
-
-      // Format inputs and dates
+  
       const uppercaseName = name.toUpperCase();
       const uppercaseRoomNumber = roomNumber.toUpperCase();
       const checkOut = new Date(checkOutDate);
       const now = new Date();
-
+  
       // Validate checkout date
       if (checkOut <= now) {
-        return res.status(400).json({ 
-          message: 'Check-out date must be in the future' 
+        return res.status(400).json({ message: 'Check-out date must be in the future' });
+      }
+  
+      // First check for existing guest with exact same details
+      const existingGuest = await Guest.findOne({
+        hotelId,
+        status: 'approved',
+        name: uppercaseName,
+        roomNumber: uppercaseRoomNumber,
+        mobileNumber: mobileNumber,
+        checkOutDate: { $gt: now }
+      });
+  
+      if (existingGuest) {
+        // If exact match found, return success with existing guest details
+        const token = jwt.sign(
+          { guestId: existingGuest._id },
+          process.env.JWT_SECRET,
+          { expiresIn: '7d' }
+        );
+  
+        return res.status(200).json({
+          message: 'Welcome back! Your details match our records.',
+          token,
+          guest: existingGuest
         });
       }
-
-      // First, find if room is occupied
-      const occupiedRoom = await Guest.findOne({
+  
+      // Check if room is occupied by someone else
+      const roomOccupied = await Guest.findOne({
         hotelId,
         roomNumber: uppercaseRoomNumber,
         status: 'approved',
         checkOutDate: { $gt: now }
       });
-
-      if (occupiedRoom) {
-        // If room is occupied, check if it's the same person
-        if (
-          occupiedRoom.name === uppercaseName &&
-          occupiedRoom.mobileNumber === mobileNumber &&
-          occupiedRoom.checkOutDate.getTime() === checkOut.getTime()
-        ) {
-          // Same person, same details - auto-approve
-          const token = jwt.sign(
-            { guestId: occupiedRoom._id },
-            process.env.JWT_SECRET,
-            { expiresIn: '7d' }
-          );
-
-          return res.status(200).json({
-            message: 'Welcome back! Auto-approved.',
-            token,
-            guest: occupiedRoom
-          });
-        } else {
-          // Different person or details - reject
-          return res.status(400).json({
-            message: 'This room is currently occupied by another guest.'
-          });
-        }
+  
+      if (roomOccupied) {
+        return res.status(400).json({
+          message: 'This room is currently occupied by another guest.'
+        });
       }
-
-      // Room is not occupied, create new guest registration
+  
+      // Check if mobile number is already registered to another active guest
+      const mobileRegistered = await Guest.findOne({
+        hotelId,
+        mobileNumber: mobileNumber,
+        status: 'approved',
+        checkOutDate: { $gt: now }
+      });
+  
+      if (mobileRegistered) {
+        return res.status(400).json({
+          message: 'This mobile number is already registered to another active guest.'
+        });
+      }
+  
+      // If all checks pass, create new pending registration
       const newGuest = new Guest({
         name: uppercaseName,
         roomNumber: uppercaseRoomNumber,
@@ -90,21 +104,21 @@ const guestController = {
         hotelId,
         status: 'pending'
       });
-
+  
       await newGuest.save();
-
+      
       const token = jwt.sign(
         { guestId: newGuest._id },
         process.env.JWT_SECRET,
         { expiresIn: '7d' }
       );
-
+  
       res.status(201).json({
         message: 'Registration submitted. Awaiting staff approval.',
         token,
         guest: newGuest
       });
-
+  
     } catch (error) {
       console.error('Register guest error:', error);
       res.status(500).json({ message: 'Registration failed', error: error.message });
