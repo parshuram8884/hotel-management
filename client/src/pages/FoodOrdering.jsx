@@ -131,7 +131,7 @@ const FoodOrdering = () => {
                   <div key={food._id} className="col-md-6 col-lg-4">
                     <div className="card h-100">
                       <img
-                        src={food.imageUrl} // Use the transformed URL directly from the backend
+                        src=src=`https://hotel-management-server-a3o3.onrender.com/${food.imageUrl}` // Use the transformed URL directly from the backend
                         className="card-img-top"
                         alt={food.name}
                         style={{ height: '200px', objectFit: 'cover' }}
