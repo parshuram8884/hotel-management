@@ -8,7 +8,9 @@ function StaffDashboard() {
   const [guestLoginLink, setGuestLoginLink] = useState('');
   const [showQRCode, setShowQRCode] = useState(false);
   const [approvedGuests, setApprovedGuests] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const maxRoomsWarningThreshold = 5; // Configurable threshold
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,6 +51,16 @@ function StaffDashboard() {
       toast.error('Hotel information not found');
     }
   };
+
+  // Add search filter
+  const filteredGuests = approvedGuests.filter(guest => 
+    guest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    guest.roomNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    guest.mobileNumber.includes(searchTerm)
+  );
+
+  // Add room availability warning
+  const remainingRooms = maxRoomsWarningThreshold - approvedGuests.length;
 
   return (
     <div className="container mt-5">
@@ -120,12 +132,33 @@ function StaffDashboard() {
         </div>
       </div>
 
+      {/* Room Availability Warning */}
+      {remainingRooms <= 3 && remainingRooms > 0 && (
+        <div className="alert alert-warning" role="alert">
+          Warning: Only {remainingRooms} rooms available!
+        </div>
+      )}
+      {remainingRooms <= 0 && (
+        <div className="alert alert-danger" role="alert">
+          No rooms available! Maximum capacity reached.
+        </div>
+      )}
+
       {/* Approved Guests Section */}
       <div className="row mt-4">
         <div className="col-12">
           <div className="card shadow-sm">
-            <div className="card-header bg-success text-white">
+            <div className="card-header bg-success text-white d-flex justify-content-between align-items-center">
               <h4 className="mb-0">Currently Approved Guests</h4>
+              <div className="w-25">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search guests..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
             </div>
             <div className="card-body">
               {loading ? (
@@ -134,8 +167,10 @@ function StaffDashboard() {
                     <span className="visually-hidden">Loading...</span>
                   </div>
                 </div>
-              ) : approvedGuests.length === 0 ? (
-                <p className="text-center mb-0">No approved guests at the moment</p>
+              ) : filteredGuests.length === 0 ? (
+                <p className="text-center mb-0">
+                  {searchTerm ? 'No matching guests found' : 'No approved guests at the moment'}
+                </p>
               ) : (
                 <div className="table-responsive">
                   <table className="table table-hover">
@@ -144,15 +179,17 @@ function StaffDashboard() {
                         <th>Name</th>
                         <th>Room</th>
                         <th>Mobile</th>
+                        <th>Check-in Date</th>
                         <th>Check-out Date</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {approvedGuests.map(guest => (
+                      {filteredGuests.map(guest => (
                         <tr key={guest._id}>
                           <td>{guest.name}</td>
                           <td>{guest.roomNumber}</td>
                           <td>{guest.mobileNumber}</td>
+                          <td>{new Date(guest.createdAt).toLocaleDateString()}</td>
                           <td>{new Date(guest.checkOutDate).toLocaleDateString()}</td>
                         </tr>
                       ))}

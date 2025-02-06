@@ -27,6 +27,34 @@ const guestController = {
       const { name, roomNumber, mobileNumber, checkOutDate } = req.body;
       const hotelId = req.params.hotelId;
 
+      // Check if room is already occupied by an approved guest
+      const existingApprovedGuest = await Guest.findOne({
+        hotelId,
+        roomNumber: roomNumber.toUpperCase(),
+        status: 'approved',
+        checkOutDate: { $gt: new Date() }
+      });
+
+      if (existingApprovedGuest) {
+        return res.status(400).json({
+          message: 'This room is currently occupied. Please verify the room number.'
+        });
+      }
+
+      // Check for duplicate mobile number
+      const existingMobileGuest = await Guest.findOne({
+        hotelId,
+        mobileNumber,
+        status: 'approved',
+        checkOutDate: { $gt: new Date() }
+      });
+
+      if (existingMobileGuest) {
+        return res.status(400).json({
+          message: 'A guest is already registered with this mobile number.'
+        });
+      }
+
       // Validate checkout date
       const checkOut = new Date(checkOutDate);
       const now = new Date();
