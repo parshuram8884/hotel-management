@@ -189,12 +189,13 @@ const authController = {
 
   getSettings: async (req, res) => {
     try {
-      const hotel = await Hotel.findById(req.hotel._id);
+      const hotel = await Hotel.findById(req.params.hotelId);
       if (!hotel) {
         return res.status(404).json({ message: 'Hotel not found' });
       }
       res.json({
-        maxRooms: hotel.maxRooms
+        maxRooms: hotel.maxRooms,
+        roomRange: hotel.roomRange
       });
     } catch (error) {
       console.error('Get settings error:', error);
@@ -204,12 +205,18 @@ const authController = {
 
   updateSettings: async (req, res) => {
     try {
-      const { maxRooms } = req.body;
+      const { maxRooms, roomRange } = req.body;
       
-      // Validate maxRooms
+      // Validate inputs
       if (!maxRooms || maxRooms < 1 || maxRooms > 1000) {
         return res.status(400).json({ 
           message: 'Maximum rooms must be between 1 and 1000' 
+        });
+      }
+
+      if (!roomRange || roomRange.start >= roomRange.end) {
+        return res.status(400).json({
+          message: 'Invalid room range'
         });
       }
 
@@ -219,11 +226,13 @@ const authController = {
       }
 
       hotel.maxRooms = maxRooms;
+      hotel.roomRange = roomRange;
       await hotel.save();
 
       res.json({ 
         message: 'Settings updated successfully',
-        maxRooms: hotel.maxRooms
+        maxRooms: hotel.maxRooms,
+        roomRange: hotel.roomRange
       });
     } catch (error) {
       console.error('Update settings error:', error);
