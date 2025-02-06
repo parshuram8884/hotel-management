@@ -27,13 +27,53 @@ const guestController = {
       const { name, roomNumber, mobileNumber, checkOutDate } = req.body;
       const hotelId = req.params.hotelId;
 
-      // Get hotel and validate room range
       const hotel = await Hotel.findById(hotelId);
       if (!hotel) {
         return res.status(404).json({ message: 'Hotel not found' });
       }
 
-      // Validate room number and format inputs
+      // Format inputs
+      const uppercaseName = name.toUpperCase();
+      const uppercaseRoomNumber = roomNumber.toUpperCase();
+      const checkOut = new Date(checkOutDate);
+
+      // Find any approved guest with matching room number
+      const existingGuest = await Guest.findOne({
+        hotelId,
+        roomNumber: uppercaseRoomNumber,
+        status: 'approved',
+        checkOutDate: { $gt: new Date() }
+      });
+
+      if (existingGuest) {
+        // If found, check if all details match
+        if (
+          existingGuest.name === uppercaseName &&
+          existingGuest.mobileNumber === mobileNumber &&
+          existingGuest.checkOutDate.getTime() === checkOut.getTime()
+        ) {
+          // All details match - auto approve
+          const token = jwt.sign(
+            { guestId: existingGuest._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '7d' }
+          );
+
+          return res.status(200).json({
+            message: 'Welcome back! Your details match our records.',
+            token,
+            guest: existingGuest
+          });
+        } else {
+          // Room is occupied but details don't match
+          return res.status(400).json({
+            message: 'This room is currently occupied by another guest.'
+          });
+        }
+      }
+
+      // If room is not occupied, check other validations
+      // Validate room number range
       const roomNum = parseInt(roomNumber);
       if (isNaN(roomNum) || roomNum < hotel.roomRange.start || roomNum > hotel.roomRange.end) {
         return res.status(400).json({
@@ -41,68 +81,12 @@ const guestController = {
         });
       }
 
-      const uppercaseName = name.toUpperCase();
-      const uppercaseRoomNumber = roomNumber.toUpperCase();
-      const checkOut = new Date(checkOutDate);
-
-      // First, check for exact match (auto-approve case)
-      const exactMatch = await Guest.findOne({
-        hotelId,
-        name: uppercaseName,
-        roomNumber: uppercaseRoomNumber,
-        mobileNumber,
-        checkOutDate: checkOut,
-        status: 'approved'
-      });
-
-      if (exactMatch) {
-        // If exact match found, auto-approve
-        const token = jwt.sign(
-          { guestId: exactMatch._id },
-          process.env.JWT_SECRET,
-          { expiresIn: '7d' }
-        );
-
-        return res.status(200).json({
-          message: 'Welcome back! Auto-approved based on exact match.',
-          token,
-          guest: exactMatch
-        });
-      }
-
-      // If no exact match, check for conflicts
-      const conflictingRoom = await Guest.findOne({
-        hotelId,
-        roomNumber: uppercaseRoomNumber,
-        status: 'approved',
-        checkOutDate: { $gt: new Date() }
-      });
-
-      if (conflictingRoom) {
-        return res.status(400).json({
-          message: 'This room is currently occupied by another guest.'
-        });
-      }
-
-      const conflictingMobile = await Guest.findOne({
-        hotelId,
-        mobileNumber,
-        status: 'approved',
-        checkOutDate: { $gt: new Date() }
-      });
-
-      if (conflictingMobile) {
-        return res.status(400).json({
-          message: 'This mobile number is already registered to another guest.'
-        });
-      }
-
-      // If no conflicts, create new pending registration
+      // Create new pending registration
       const guest = new Guest({
         name: uppercaseName,
         roomNumber: uppercaseRoomNumber,
         mobileNumber,
-        checkOutDate,
+        checkOutDate: checkOut,
         hotelId,
         status: 'pending'
       });
