@@ -225,13 +225,13 @@ const FoodManagement = () => {
                       <tr key={food._id}>
                         <td>
                           <img
-                            src={food.imageUrl} // Use the transformed URL directly from the backend
+                            src={`https://hotel-management-server-a3o3.onrender.com${food.imageUrl}`}
                             alt={food.name}
                             style={{ width: '75px', height: '75px', objectFit: 'cover' }}
                             className="rounded"
                             onError={(e) => {
                               e.target.onerror = null;
-                              e.target.src = 'https://via.placeholder.com/25x25?text=Image+Not+Found';
+                              e.target.src = 'https://via.placeholder.com/75x75?text=Image+Not+Found';
                             }}
                           />
                         </td>

@@ -18,7 +18,7 @@ const FoodOrdering = () => {
     try {
       const guestInfo = JSON.parse(localStorage.getItem('guestInfo'));
       const response = await axios.get(
-        `https://hotel-management-server-a3o3.onrender.com/api/food/menu/${guestInfo.hotelId}`  // Updated route
+        `https://hotel-management-server-a3o3.onrender.com/api/food/menu/${guestInfo.hotelId}`
       );
       setFoods(response.data);
     } catch (error) {
@@ -88,7 +88,7 @@ const FoodOrdering = () => {
       };
 
       const response = await axios.post(
-        `https://hotel-management-server-a3o3.onrender.com/api/food/orders`,  // Updated route
+        'https://hotel-management-server-a3o3.onrender.com/api/food/orders',
         orderData,
         {
           headers: { Authorization: token }
@@ -131,7 +131,7 @@ const FoodOrdering = () => {
                   <div key={food._id} className="col-md-6 col-lg-4">
                     <div className="card h-100">
                       <img
-                        src={food.imageUrl} // Use the transformed URL directly from the backend
+                        src={`https://hotel-management-server-a3o3.onrender.com${food.imageUrl}`}
                         className="card-img-top"
                         alt={food.name}
                         style={{ height: '200px', objectFit: 'cover' }}
