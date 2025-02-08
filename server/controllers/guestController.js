@@ -34,6 +34,19 @@ const guestController = {
   
       const uppercaseName = name.toUpperCase();
       const uppercaseRoomNumber = roomNumber.toUpperCase();
+
+      // Validate room number against hotel's room range
+      if (hotel.roomRange) {
+        const isRoomInRange = uppercaseRoomNumber >= hotel.roomRange.start && 
+                            uppercaseRoomNumber <= hotel.roomRange.end;
+        
+        if (!isRoomInRange) {
+          return res.status(400).json({ 
+            message: 'Sorry, this room number is not within the valid range for this hotel.' 
+          });
+        }
+      }
+
       const checkOut = new Date(checkOutDate);
       const now = new Date();
   

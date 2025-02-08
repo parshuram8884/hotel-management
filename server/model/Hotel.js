@@ -46,16 +46,12 @@ const hotelSchema = new mongoose.Schema({
   },
   roomRange: {
     start: {
-      type: Number,
-      default: 100,
-      min: 1,
-      max: 9999
+      type: String,
+      required: true
     },
     end: {
-      type: Number,
-      default: 999,
-      min: 1,
-      max: 9999
+      type: String,
+      required: true
     }
   }
 }, { timestamps: true });
