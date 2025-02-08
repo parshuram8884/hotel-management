@@ -135,7 +135,7 @@ const authController = {
         return res.status(500).json({ message: 'Email service configuration error' });
       }
 
-      const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+      const resetUrl = `https://hotel-management-client.onrender.com/reset-password/${resetToken}`;
       
       try {
         await transporter.sendMail({
