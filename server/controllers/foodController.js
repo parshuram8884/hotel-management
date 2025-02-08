@@ -44,7 +44,7 @@ const foodController = {
       const food = new Food({
         name: name.toUpperCase(),
         price: Number(price),
-        imageUrl: `/uploads/${req.file.filename}`, // Make sure path matches upload directory
+        imageUrl: `/uploads/food-images/${req.file.filename}`, // Make sure this matches the upload path
         hotelId: req.hotel._id,
         isAvailable: true
       });
@@ -52,7 +52,10 @@ const foodController = {
       await food.save();
       res.status(201).json({
         message: 'Food item added successfully',
-        food
+        food: {
+          ...food.toObject(),
+          imageUrl: `https://hotel-management-server-a3o3.onrender.com${food.imageUrl}`
+        }
       });
     } catch (error) {
       if (req.file) {
@@ -77,7 +80,14 @@ const foodController = {
       }
 
       const foods = await Food.find(query).sort({ name: 1 });
-      res.json(foods);
+      
+      // Transform the foods to include full image URLs
+      const transformedFoods = foods.map(food => ({
+        ...food.toObject(),
+        imageUrl: `https://hotel-management-server-a3o3.onrender.com${food.imageUrl}`
+      }));
+
+      res.json(transformedFoods);
     } catch (error) {
       console.error('Error fetching food items:', error);
       res.status(500).json({ message: 'Error fetching food items' });

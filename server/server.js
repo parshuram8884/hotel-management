@@ -26,13 +26,17 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Serve static files from uploads directory with proper headers
-app.use('/uploads', (req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
-  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+// Update static file serving
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Add CORS headers specifically for images
+app.use((req, res, next) => {
+  if (req.path.startsWith('/uploads')) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  }
   next();
-}, express.static(path.join(__dirname, 'uploads')));
+});
 
 // Debug middleware to log requests
 app.use((req, res, next) => {

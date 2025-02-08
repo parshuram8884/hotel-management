@@ -4,7 +4,8 @@ const path = require('path');
 // Configure storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+    // Change destination to the full path
+    cb(null, path.join(__dirname, '../uploads/food-images'));
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -29,4 +30,4 @@ const upload = multer({
   }
 });
 
-module.exports = upload; 
+module.exports = upload;

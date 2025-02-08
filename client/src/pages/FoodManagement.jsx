@@ -225,7 +225,7 @@ const FoodManagement = () => {
                       <tr key={food._id}>
                         <td>
                           <img
-                            src={food.imageUrl} // Use the URL directly as received from backend
+                            src={food.imageUrl} // Use the complete URL directly
                             alt={food.name}
                             style={{ width: '75px', height: '75px', objectFit: 'cover' }}
                             className="rounded"
