@@ -44,7 +44,7 @@ const foodController = {
       const food = new Food({
         name: name.toUpperCase(),
         price: Number(price),
-        imageUrl: `/uploads/food-images/${req.file.filename}`,
+        imageUrl: `/uploads/${req.file.filename}`,
         hotelId: req.hotel._id,
         isAvailable: true
       });
