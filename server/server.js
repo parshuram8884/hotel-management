@@ -1,4 +1,5 @@
-require('dotenv').config();
+
+
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -11,6 +12,18 @@ const foodRoutes = require('./routes/foodRoutes')
 const cookieParser = require('cookie-parser');
 
 const app = express();
+
+// Move dotenv config to very top
+require('dotenv').config();
+
+// Verify environment variables are loaded
+console.log('Environment Check:', {
+  CLOUDINARY_CONFIG: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME ? 'Set' : 'Missing',
+    apiKey: process.env.CLOUDINARY_API_KEY ? 'Set' : 'Missing',
+    apiSecret: process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Missing'
+  }
+});
 
 // Create uploads directory if it doesn't exist
 const uploadDir = path.join(__dirname, 'uploads/food-images');
