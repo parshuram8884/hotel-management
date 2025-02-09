@@ -74,7 +74,7 @@ const FoodManagement = () => {
         formDataToSend,
         {
           headers: { 
-            Authorization: token,
+            'Authorization': `Bearer ${token}`, // Add 'Bearer' prefix
             'Content-Type': 'multipart/form-data'
           }
         }

@@ -42,15 +42,32 @@ const foodController = {
         return res.status(400).json({ message: 'Please upload an image' });
       }
 
-      // Upload to Cloudinary
+      console.log('Uploading to Cloudinary...'); // Debug log
+
+      // Upload to Cloudinary with better error handling
       const uploadPromise = new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: "food-images" },
+          { 
+            folder: "food-images",
+            resource_type: "auto"
+          },
           (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
+            if (error) {
+              console.error('Cloudinary upload error:', error);
+              reject(error);
+            } else {
+              console.log('Cloudinary upload success:', result.url);
+              resolve(result);
+            }
           }
         );
+
+        // Handle stream errors
+        stream.on('error', (error) => {
+          console.error('Stream error:', error);
+          reject(error);
+        });
+
         streamifier.createReadStream(req.file.buffer).pipe(stream);
       });
 
@@ -70,8 +87,11 @@ const foodController = {
         food
       });
     } catch (error) {
-      console.error('Error adding food:', error);
-      res.status(500).json({ message: 'Error adding food item' });
+      console.error('Detailed error:', error);
+      res.status(500).json({ 
+        message: 'Error adding food item',
+        error: error.message 
+      });
     }
   },
 
