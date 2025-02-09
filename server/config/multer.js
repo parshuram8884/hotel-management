@@ -1,19 +1,8 @@
 const multer = require('multer');
-const path = require('path');
 
-// Configure storage
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    // Change destination to the full path
-    cb(null, path.join(__dirname, '../uploads/food-images'));
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'food-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
+// Store in memory for Cloudinary upload
+const storage = multer.memoryStorage();
 
-// File filter
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image/')) {
     cb(null, true);

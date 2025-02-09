@@ -3,6 +3,8 @@ const Order = require('../model/Order');
 const Guest = require('../model/Guest');
 const fs = require('fs');
 const path = require('path');
+const cloudinary = require('../config/cloudinary');
+const streamifier = require('streamifier');
 
 // Helper function to clean up expired orders
 const cleanupExpiredOrders = async (hotelId) => {
@@ -36,15 +38,28 @@ const foodController = {
         return res.status(401).json({ message: 'Hotel authentication required' });
       }
 
-      const { name, price } = req.body;
       if (!req.file) {
         return res.status(400).json({ message: 'Please upload an image' });
       }
 
+      // Upload to Cloudinary
+      const uploadPromise = new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "food-images" },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        streamifier.createReadStream(req.file.buffer).pipe(stream);
+      });
+
+      const result = await uploadPromise;
+
       const food = new Food({
-        name: name.toUpperCase(),
-        price: Number(price),
-        imageUrl: `/uploads/food-images/${req.file.filename}`, // Make sure this matches the upload path
+        name: req.body.name.toUpperCase(),
+        price: Number(req.body.price),
+        imageUrl: result.secure_url, // Use Cloudinary URL directly
         hotelId: req.hotel._id,
         isAvailable: true
       });
@@ -52,17 +67,11 @@ const foodController = {
       await food.save();
       res.status(201).json({
         message: 'Food item added successfully',
-        food: {
-          ...food.toObject(),
-          imageUrl: `https://hotel-management-server-a3o3.onrender.com${food.imageUrl}`
-        }
+        food
       });
     } catch (error) {
-      if (req.file) {
-        fs.unlinkSync(req.file.path);
-      }
       console.error('Error adding food:', error);
-      res.status(500).json({ message: 'Error adding food item', error: error.message });
+      res.status(500).json({ message: 'Error adding food item' });
     }
   },
 
@@ -81,13 +90,7 @@ const foodController = {
 
       const foods = await Food.find(query).sort({ name: 1 });
       
-      // Transform the foods to include full image URLs
-      const transformedFoods = foods.map(food => ({
-        ...food.toObject(),
-        imageUrl: `https://hotel-management-server-a3o3.onrender.com${food.imageUrl}`
-      }));
-
-      res.json(transformedFoods);
+      res.json(foods); // No need to transform URLs as they're already complete
     } catch (error) {
       console.error('Error fetching food items:', error);
       res.status(500).json({ message: 'Error fetching food items' });

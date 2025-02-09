@@ -29,4 +29,4 @@ const foodSchema = new mongoose.Schema({
 foodSchema.index({ hotelId: 1, isAvailable: 1 });
 
 const Food = mongoose.model('Food', foodSchema);
-module.exports = Food; 
+module.exports = Food;
