@@ -1,13 +1,8 @@
 const cloudinary = require('cloudinary').v2;
 
-// Log environment variables (but mask sensitive data)
-console.log('Cloudinary Environment Variables:', {
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME ? 'Set' : 'Missing',
-  api_key: process.env.CLOUDINARY_API_KEY ? 'Set' : 'Missing',  
-  api_secret: process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Missing'
-});
 
-// Only configure if all required variables are present
+
+
 if (process.env.CLOUDINARY_CLOUD_NAME && 
     process.env.CLOUDINARY_API_KEY && 
     process.env.CLOUDINARY_API_SECRET) {
