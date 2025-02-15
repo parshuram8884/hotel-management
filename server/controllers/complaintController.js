@@ -1,6 +1,7 @@
 const Complaint = require('../model/Complaint');
-const PreDefinedComplaint = require('../model/PredefinedComplaint')
+const PredefinedComplaint = require('../model/PredefinedComplaint');
 const Guest = require('../model/Guest');
+const Hotel = require('../model/Hotel');
 
 // Function to delete old complaints
 const deleteOldComplaints = async () => {

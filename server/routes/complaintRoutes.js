@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const complaintController = require('../controllers/complaintController')
+const complaintController = require('../controllers/complaintController');
 const { auth } = require('../middleware/auth');
 const guestAuth = require('../middleware/authMiddleware');
 const Complaint = require('../model/Complaint');
