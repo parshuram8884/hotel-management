@@ -1,30 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const {
-    getHotelComplaints,
-    getGuestComplaints,
-    addPredefinedComplaint,
-    getPredefinedComplaints,
-    submitComplaint,
-    updateComplaintStatus,
-    addStaffMessage,
-    addGuestMessage,
-    deleteComplaint
-} = require('../controllers/complaintController');
+const complaintController = require('../controllers/complaintController');
 const { auth } = require('../middleware/auth');
 const guestAuth = require('../middleware/authMiddleware');
 
 // Staff routes
-router.get('/hotel', auth, getHotelComplaints);
-router.post('/predefined', auth, addPredefinedComplaint);
-router.patch('/:complaintId/status', auth, updateComplaintStatus);
-router.post('/:complaintId/staff-messages', auth, addStaffMessage);
-router.delete('/:complaintId', auth, deleteComplaint);
+router.get('/hotel', auth, complaintController.getHotelComplaints);
+router.post('/predefined', auth, complaintController.addPredefinedComplaint);
+router.patch('/:complaintId/status', auth, complaintController.updateComplaintStatus);
+router.post('/:complaintId/staff-messages', auth, complaintController.addStaffMessage);
+router.delete('/:complaintId', auth, complaintController.deleteComplaint);
 
 // Guest routes
-router.get('/predefined/:hotelId', getPredefinedComplaints);
-router.get('/guest', guestAuth, getGuestComplaints);
-router.post('/submit', guestAuth, submitComplaint);
-router.post('/:complaintId/messages', guestAuth, addGuestMessage);
+router.get('/predefined/:hotelId', complaintController.getPredefinedComplaints);
+router.get('/guest', guestAuth, complaintController.getGuestComplaints);
+router.post('/submit', guestAuth, complaintController.submitComplaint);
+router.post('/:complaintId/messages', guestAuth, complaintController.addGuestMessage);
 
 module.exports = router;
