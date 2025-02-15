@@ -1,261 +1,244 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 const Hotel = require('../model/Hotel');
-const Guest = require('../model/Guest');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
 
 const authController = {
-    // Hotel authentication
-    registerHotel: async (req, res) => {
-        try {
-            const { hotelName, email, password, address, phoneNumber, roomRange } = req.body;
+  signup: async (req, res) => {
+    try {
+      const { hotelName, email, password, address, phoneNumber } = req.body;
 
-            // Check if hotel already exists
-            const existingHotel = await Hotel.findOne({ 
-                $or: [{ email }, { hotelName }] 
-            });
-            if (existingHotel) {
-                return res.status(400).json({ 
-                    message: 'Hotel already registered with this email or name' 
-                });
-            }
+      // Check if hotel already exists
+      const existingHotel = await Hotel.findOne({ 
+        $or: [{ email }, { hotelName }] 
+      });
 
-            // Create new hotel
-            const hotel = new Hotel({
-                hotelName,
-                email,
-                password,
-                address,
-                phoneNumber,
-                roomRange
-            });
+      if (existingHotel) {
+        return res.status(400).json({ 
+          message: existingHotel.email === email 
+            ? 'Email already registered' 
+            : 'Hotel name already taken' 
+        });
+      }
 
-            await hotel.save();
+      // Create new hotel
+      const hotel = new Hotel({
+        hotelName,
+        email,
+        password,
+        address,
+        phoneNumber
+      });
 
-            // Generate token
-            const token = jwt.sign(
-                { hotelId: hotel._id },
-                process.env.JWT_SECRET,
-                { expiresIn: '7d' }
-            );
+      await hotel.save();
 
-            res.cookie('staffToken', token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-            });
+      // Generate token
+      const token = jwt.sign(
+        { hotelId: hotel._id },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+      );
 
-            res.status(201).json({
-                message: 'Hotel registered successfully',
-                hotel: {
-                    id: hotel._id,
-                    hotelName: hotel.hotelName,
-                    email: hotel.email
-                },
-                token
-            });
-        } catch (error) {
-            console.error('Hotel registration error:', error);
-            res.status(500).json({ message: 'Error registering hotel' });
+      res.status(201).json({
+        message: 'Registration successful',
+        token,
+        hotel: {
+          id: hotel._id,
+          hotelName: hotel.hotelName,
+          email: hotel.email,
+          address: hotel.address,
+          phoneNumber: hotel.phoneNumber
         }
-    },
-
-    loginHotel: async (req, res) => {
-        try {
-            const { email, password } = req.body;
-
-            // Find hotel
-            const hotel = await Hotel.findOne({ email });
-            if (!hotel) {
-                return res.status(401).json({ message: 'Invalid credentials' });
-            }
-
-            // Verify password
-            const isValidPassword = await hotel.comparePassword(password);
-            if (!isValidPassword) {
-                return res.status(401).json({ message: 'Invalid credentials' });
-            }
-
-            // Generate token
-            const token = jwt.sign(
-                { hotelId: hotel._id },
-                process.env.JWT_SECRET,
-                { expiresIn: '7d' }
-            );
-
-            res.cookie('staffToken', token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-            });
-
-            res.json({
-                hotel: {
-                    id: hotel._id,
-                    hotelName: hotel.hotelName,
-                    email: hotel.email
-                },
-                token
-            });
-        } catch (error) {
-            console.error('Hotel login error:', error);
-            res.status(500).json({ message: 'Login failed' });
-        }
-    },
-
-    // Guest authentication
-    registerGuest: async (req, res) => {
-        try {
-            const { name, roomNumber, mobileNumber, hotelId, checkOutDate } = req.body;
-
-            // Validate room number format
-            if (!/^[A-Z0-9]+$/.test(roomNumber)) {
-                return res.status(400).json({ message: 'Invalid room number format' });
-            }
-
-            // Check if room is already occupied
-            const existingGuest = await Guest.findOne({
-                hotelId,
-                roomNumber,
-                status: 'approved'
-            });
-            if (existingGuest) {
-                return res.status(400).json({ message: 'Room already occupied' });
-            }
-
-            // Create new guest
-            const guest = new Guest({
-                name,
-                roomNumber,
-                mobileNumber,
-                hotelId,
-                checkOutDate,
-                status: 'pending'
-            });
-
-            await guest.save();
-
-            res.status(201).json({
-                message: 'Registration successful. Please wait for staff approval.',
-                guest: {
-                    id: guest._id,
-                    name: guest.name,
-                    roomNumber: guest.roomNumber,
-                    status: guest.status
-                }
-            });
-        } catch (error) {
-            console.error('Guest registration error:', error);
-            res.status(500).json({ message: 'Error registering guest' });
-        }
-    },
-
-    loginGuest: async (req, res) => {
-        try {
-            const { mobileNumber, roomNumber, hotelId } = req.body;
-
-            // Find guest
-            const guest = await Guest.findOne({
-                mobileNumber,
-                roomNumber,
-                hotelId,
-                status: 'approved'
-            });
-
-            if (!guest) {
-                return res.status(401).json({ message: 'Invalid credentials or pending approval' });
-            }
-
-            // Check if past checkout date
-            if (new Date(guest.checkOutDate) < new Date()) {
-                return res.status(401).json({ message: 'Stay period has expired' });
-            }
-
-            // Generate token
-            const token = jwt.sign(
-                { 
-                    guestId: guest._id,
-                    checkOutDate: guest.checkOutDate
-                },
-                process.env.JWT_SECRET,
-                { expiresIn: '24h' }
-            );
-
-            res.cookie('guestToken', token, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                maxAge: 24 * 60 * 60 * 1000 // 24 hours
-            });
-
-            res.json({
-                guest: {
-                    id: guest._id,
-                    name: guest.name,
-                    roomNumber: guest.roomNumber
-                },
-                token
-            });
-        } catch (error) {
-            console.error('Guest login error:', error);
-            res.status(500).json({ message: 'Login failed' });
-        }
-    },
-
-    logout: async (req, res) => {
-        try {
-            res.clearCookie('staffToken');
-            res.clearCookie('guestToken');
-            res.json({ message: 'Logged out successfully' });
-        } catch (error) {
-            console.error('Logout error:', error);
-            res.status(500).json({ message: 'Error during logout' });
-        }
-    },
-
-    verifyToken: async (req, res) => {
-        try {
-            const token = req.cookies.staffToken || req.cookies.guestToken;
-            if (!token) {
-                return res.status(401).json({ message: 'No token provided' });
-            }
-
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            
-            if (decoded.hotelId) {
-                const hotel = await Hotel.findById(decoded.hotelId);
-                if (!hotel) {
-                    return res.status(401).json({ message: 'Invalid token' });
-                }
-                return res.json({
-                    type: 'hotel',
-                    user: {
-                        id: hotel._id,
-                        hotelName: hotel.hotelName,
-                        email: hotel.email
-                    }
-                });
-            }
-
-            if (decoded.guestId) {
-                const guest = await Guest.findById(decoded.guestId);
-                if (!guest || guest.status !== 'approved') {
-                    return res.status(401).json({ message: 'Invalid token' });
-                }
-                return res.json({
-                    type: 'guest',
-                    user: {
-                        id: guest._id,
-                        name: guest.name,
-                        roomNumber: guest.roomNumber
-                    }
-                });
-            }
-
-            res.status(401).json({ message: 'Invalid token' });
-        } catch (error) {
-            console.error('Token verification error:', error);
-            res.status(401).json({ message: 'Token verification failed' });
-        }
+      });
+    } catch (error) {
+      console.error('Signup error:', error);
+      res.status(500).json({ message: 'Server error' });
     }
+  },
+
+  login: async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const hotel = await Hotel.findOne({ email });
+      
+      if (!hotel) {
+        return res.status(404).json({ message: 'Hotel not found' });
+      }
+
+      const isMatch = await hotel.comparePassword(password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Invalid credentials' });
+      }
+
+      const token = jwt.sign(
+        { hotelId: hotel._id },
+        process.env.JWT_SECRET,
+        { expiresIn: '30d' }
+      );
+
+      // Set cookie for staff
+      res.cookie('staffToken', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
+      });
+
+      res.json({
+        token,
+        hotel: {
+          id: hotel._id,
+          hotelName: hotel.hotelName,
+          email: hotel.email,
+          address: hotel.address,
+          phoneNumber: hotel.phoneNumber
+        }
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  },
+
+  forgotPassword: async (req, res) => {
+    try {
+      const { email } = req.body;
+      const hotel = await Hotel.findOne({ email });
+
+      if (!hotel) {
+        return res.status(404).json({ message: 'Hotel not found' });
+      }
+
+      const resetToken = crypto.randomBytes(20).toString('hex');
+      hotel.resetPasswordToken = resetToken;
+      hotel.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+
+      // Create transporter with verbose error logging
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        },
+        debug: true, // Enable debug logging
+        logger: true  // Log to console
+      });
+
+      // Verify SMTP connection configuration
+      try {
+        await transporter.verify();
+        console.log('SMTP connection verified successfully');
+      } catch (smtpError) {
+        console.error('SMTP Verification failed:', smtpError);
+        return res.status(500).json({ message: 'Email service configuration error' });
+      }
+
+      const resetUrl = `https://hotel-management-client.onrender.com/reset-password/${resetToken}`;
+      
+      try {
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: email,
+          subject: 'Password Reset Request',
+          html: `
+            <h1>Password Reset Request</h1>
+            <p>Please click on the following link to reset your password:</p>
+            <a href="${resetUrl}">${resetUrl}</a>
+            <p>This link will expire in 1 hour.</p>
+            <p>If you did not request this, please ignore this email.</p>
+          `
+        });
+
+        await hotel.save();
+        res.json({ message: 'Password reset email sent' });
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+        res.status(500).json({ message: 'Failed to send reset email' });
+      }
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  },
+
+  resetPassword: async (req, res) => {
+    try {
+      const { token, newPassword } = req.body;
+      const hotel = await Hotel.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: Date.now() }
+      });
+
+      if (!hotel) {
+        return res.status(400).json({ message: 'Invalid or expired token' });
+      }
+
+      hotel.password = newPassword;
+      hotel.resetPasswordToken = undefined;
+      hotel.resetPasswordExpires = undefined;
+      await hotel.save();
+
+      res.json({ message: 'Password reset successful' });
+    } catch (error) {
+      console.error('Reset password error:', error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  },
+
+  getSettings: async (req, res) => {
+    try {
+      const hotel = await Hotel.findById(req.params.hotelId);
+      if (!hotel) {
+        return res.status(404).json({ message: 'Hotel not found' });
+      }
+      res.json({
+        maxRooms: hotel.maxRooms,
+        roomRange: hotel.roomRange
+      });
+    } catch (error) {
+      console.error('Get settings error:', error);
+      res.status(500).json({ message: 'Error fetching settings' });
+    }
+  },
+
+  updateSettings: async (req, res) => {
+    try {
+      const { maxRooms, roomRange } = req.body;
+      
+      // Validate inputs
+      if (!maxRooms || maxRooms < 1 || maxRooms > 1000) {
+        return res.status(400).json({ 
+          message: 'Maximum rooms must be between 1 and 1000' 
+        });
+      }
+
+      if (!roomRange || roomRange.start >= roomRange.end) {
+        return res.status(400).json({
+          message: 'Invalid room range'
+        });
+      }
+
+      const hotel = await Hotel.findById(req.hotel._id);
+      if (!hotel) {
+        return res.status(404).json({ message: 'Hotel not found' });
+      }
+
+      hotel.maxRooms = maxRooms;
+      hotel.roomRange = roomRange;
+      await hotel.save();
+
+      res.json({ 
+        message: 'Settings updated successfully',
+        maxRooms: hotel.maxRooms,
+        roomRange: hotel.roomRange
+      });
+    } catch (error) {
+      console.error('Update settings error:', error);
+      res.status(500).json({ message: 'Error updating settings' });
+    }
+  }
 };
 
 module.exports = authController;
