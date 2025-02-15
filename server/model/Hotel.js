@@ -47,11 +47,11 @@ const hotelSchema = new mongoose.Schema({
   roomRange: {
     start: {
       type: String,
-      required: true
+      default: '101'  // Make it optional with default
     },
     end: {
       type: String,
-      required: true
+      default: '110'  // Make it optional with default
     }
   }
 }, { timestamps: true });
@@ -63,10 +63,12 @@ hotelSchema.pre('save', async function(next) {
   next();
 });
 
-// Add validation for room range
+// Modify room range validation
 hotelSchema.pre('save', function(next) {
-  if (this.roomRange.start >= this.roomRange.end) {
-    next(new Error('Room range start must be less than end'));
+  if (this.roomRange && this.roomRange.start && this.roomRange.end) {
+    if (this.roomRange.start >= this.roomRange.end) {
+      next(new Error('Room range start must be less than end'));
+    }
   }
   next();
 });

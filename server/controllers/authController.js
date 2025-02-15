@@ -20,20 +20,39 @@ const authController = {
 
             if (existingHotel) {
                 return res.status(400).json({ 
-                    message: 'Hotel already registered with this email or name' 
+                    message: existingHotel.email === email ? 
+                        'Email already registered' : 
+                        'Hotel name already taken' 
                 });
             }
 
-            // Create hotel
+            // Initialize with default room range
             const hotel = new Hotel({
                 hotelName,
                 email,
                 password,
                 address,
-                phoneNumber
+                phoneNumber,
+                maxRooms: 10, // Default value
+                roomRange: {
+                    start: '101',  // Default start room
+                    end: '110'     // Default end room
+                }
             });
 
-            await hotel.save();
+            // Save with detailed error handling
+            try {
+                await hotel.save();
+            } catch (saveError) {
+                console.error('Hotel save error:', saveError);
+                if (saveError.name === 'ValidationError') {
+                    return res.status(400).json({ 
+                        message: 'Validation error', 
+                        errors: Object.values(saveError.errors).map(err => err.message) 
+                    });
+                }
+                throw saveError;
+            }
 
             const token = jwt.sign(
                 { hotelId: hotel._id },
@@ -47,14 +66,16 @@ const authController = {
                 hotel: {
                     id: hotel._id,
                     hotelName: hotel.hotelName,
-                    email: hotel.email
+                    email: hotel.email,
+                    maxRooms: hotel.maxRooms,
+                    roomRange: hotel.roomRange
                 }
             });
         } catch (error) {
             console.error('Signup error:', error);
             res.status(500).json({ 
                 message: 'Registration failed', 
-                error: error.message 
+                error: process.env.NODE_ENV === 'development' ? error.message : undefined
             });
         }
     },
