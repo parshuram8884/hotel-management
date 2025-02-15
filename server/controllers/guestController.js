@@ -25,116 +25,73 @@ const guestController = {
   registerGuest: async (req, res) => {
     try {
       const { name, roomNumber, mobileNumber, checkOutDate } = req.body;
-      const hotelId = req.params.hotelId;
+      const hotelId = req.params.hotelId; // Get hotelId from URL params
+
+      // Validate hotelId
+      if (!hotelId) {
+        return res.status(400).json({ message: 'Hotel ID is required' });
+      }
+
+      // Find hotel first
       const hotel = await Hotel.findById(hotelId);
-      
       if (!hotel) {
         return res.status(404).json({ message: 'Hotel not found' });
       }
-  
+
+      console.log('Found hotel:', hotel.hotelName); // Debug log
+
+      // Format input
       const uppercaseName = name.toUpperCase();
       const uppercaseRoomNumber = roomNumber.toUpperCase();
 
-      // Validate room number against hotel's room range
-      if (hotel.roomRange) {
-        const isRoomInRange = uppercaseRoomNumber >= hotel.roomRange.start && 
-                            uppercaseRoomNumber <= hotel.roomRange.end;
-        
-        if (!isRoomInRange) {
-          return res.status(400).json({ 
-            message: 'Sorry, this room number is not within the valid range for this hotel.' 
-          });
-        }
+      // Validate room number against hotel's range
+      const roomNum = parseInt(uppercaseRoomNumber);
+      const startNum = parseInt(hotel.roomRange.start);
+      const endNum = parseInt(hotel.roomRange.end);
+
+      if (isNaN(roomNum) || roomNum < startNum || roomNum > endNum) {
+        return res.status(400).json({
+          message: `Room number must be between ${hotel.roomRange.start} and ${hotel.roomRange.end}`
+        });
       }
 
-      const checkOut = new Date(checkOutDate);
-      const now = new Date();
-  
-      // Validate checkout date
-      if (checkOut <= now) {
-        return res.status(400).json({ message: 'Check-out date must be in the future' });
-      }
-  
-      // First check for existing guest with exact same details
-      const existingGuest = await Guest.findOne({
-        hotelId,
-        status: 'approved',
-        name: uppercaseName,
-        roomNumber: uppercaseRoomNumber,
-        mobileNumber: mobileNumber,
-        checkOutDate: { $gt: now }
-      });
-  
-      if (existingGuest) {
-        // If exact match found, return success with existing guest details
-        const token = jwt.sign(
-          { guestId: existingGuest._id },
-          process.env.JWT_SECRET,
-          { expiresIn: '7d' }
-        );
-  
-        return res.status(200).json({
-          message: 'Welcome back! Your details match our records.',
-          token,
-          guest: existingGuest
-        });
-      }
-  
-      // Check if room is occupied by someone else
-      const roomOccupied = await Guest.findOne({
-        hotelId,
-        roomNumber: uppercaseRoomNumber,
-        status: 'approved',
-        checkOutDate: { $gt: now }
-      });
-  
-      if (roomOccupied) {
-        return res.status(400).json({
-          message: 'This room is currently occupied by another guest.'
-        });
-      }
-  
-      // Check if mobile number is already registered to another active guest
-      const mobileRegistered = await Guest.findOne({
-        hotelId,
-        mobileNumber: mobileNumber,
-        status: 'approved',
-        checkOutDate: { $gt: now }
-      });
-  
-      if (mobileRegistered) {
-        return res.status(400).json({
-          message: 'This mobile number is already registered to another active guest.'
-        });
-      }
-  
-      // If all checks pass, create new pending registration
-      const newGuest = new Guest({
+      // Create new guest
+      const guest = new Guest({
         name: uppercaseName,
         roomNumber: uppercaseRoomNumber,
         mobileNumber,
-        checkOutDate: checkOut,
         hotelId,
+        checkOutDate,
         status: 'pending'
       });
-  
-      await newGuest.save();
-      
+
+      await guest.save();
+      console.log('Guest registered:', guest); // Debug log
+
+      // Generate token
       const token = jwt.sign(
-        { guestId: newGuest._id },
+        { guestId: guest._id },
         process.env.JWT_SECRET,
         { expiresIn: '7d' }
       );
-  
+
       res.status(201).json({
         message: 'Registration submitted. Awaiting staff approval.',
         token,
-        guest: newGuest
+        guest: {
+          id: guest._id,
+          name: guest.name,
+          roomNumber: guest.roomNumber,
+          status: guest.status,
+          hotelId: guest.hotelId
+        }
       });
-  
     } catch (error) {
       console.error('Register guest error:', error);
-      res.status(500).json({ message: 'Registration failed', error: error.message });
+      res.status(500).json({ 
+        message: 'Registration failed', 
+        error: error.message 
+      });
     }
   },
 

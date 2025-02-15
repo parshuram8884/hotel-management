@@ -95,36 +95,56 @@ const GuestLogin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validate mobile number
-    if (!validatePhone(formData.mobileNumber)) {
-      toast.error('Please enter a valid 10-digit Indian mobile number');
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        `https://hotel-management-server-a3o3.onrender.com/api/guests/register/${hotelId}`,
-        formData
-      );
+        console.log('Submitting registration for hotel:', hotelId); // Debug log
 
-      localStorage.setItem('guestToken', response.data.token);
-      localStorage.setItem('guestInfo', JSON.stringify({
-        ...response.data.guest,
-        hotelId // Store hotelId in guest info
-      }));
-      
-      toast.success('Registration successful! Awaiting staff approval.');
-      navigate(`/guest/status/${response.data.guest._id}`);
+        // Ensure hotelId is available
+        if (!hotelId) {
+            toast.error('Hotel ID is missing');
+            return;
+        }
+
+        const response = await axios.post(
+            `https://hotel-management-server-a3o3.onrender.com/api/guests/register/${hotelId}`,
+            {
+                name: formData.name,
+                roomNumber: formData.roomNumber,
+                mobileNumber: formData.mobileNumber,
+                checkOutDate: formData.checkOutDate
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        console.log('Registration response:', response.data); // Debug log
+
+        if (response.data.token && response.data.guest) {
+            localStorage.setItem('guestToken', response.data.token);
+            localStorage.setItem('guestInfo', JSON.stringify({
+                ...response.data.guest,
+                hotelId
+            }));
+            
+            toast.success('Registration successful! Awaiting staff approval.');
+            navigate(`/guest/status/${response.data.guest.id}`);
+        } else {
+            throw new Error('Invalid response from server');
+        }
     } catch (error) {
-      console.error('Registration error:', error);
-      toast.error(error.response?.data?.message || 'Registration failed');
+        console.error('Registration error:', error.response || error);
+        toast.error(
+            error.response?.data?.message || 
+            'Registration failed. Please try again.'
+        );
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   return (
     <div className="container-fluid min-vh-100 d-flex align-items-center justify-content-center bg-light">
