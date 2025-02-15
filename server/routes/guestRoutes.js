@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const guestController = require('../controllers/guestController');
-// const { guestAuth } = require('../middleware/authMiddleware');
 const { auth } = require('../middleware/auth');
 
 // Public routes
 router.get('/verify-hotel/:hotelId', guestController.verifyHotel);
-router.post('/register/:hotelId', guestController.registerGuest);
+router.post('/register/:hotelId', 
+    guestController.validateRoomNumber,
+    guestController.registerGuest
+);
+router.post('/login', guestController.loginGuest);
 router.get('/status/:guestId', guestController.getGuestStatus);
 
 // Protected routes

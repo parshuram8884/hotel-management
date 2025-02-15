@@ -236,6 +236,39 @@ const authController = {
     updateSettings: async (req, res) => {
         try {
             const { maxRooms, roomRange } = req.body;
+            
+            // Validate maxRooms
+            if (!maxRooms || maxRooms < 1 || maxRooms > 1000) {
+                return res.status(400).json({ 
+                    message: 'Maximum rooms must be between 1 and 1000' 
+                });
+            }
+
+            // Validate room range format
+            if (!roomRange || !roomRange.start || !roomRange.end ||
+                roomRange.start.length < 1 || roomRange.end.length < 1) {
+                return res.status(400).json({
+                    message: 'Invalid room range format'
+                });
+            }
+
+            // Validate room range values
+            const start = parseInt(roomRange.start);
+            const end = parseInt(roomRange.end);
+            if (isNaN(start) || isNaN(end) || start >= end || start < 1) {
+                return res.status(400).json({
+                    message: 'Invalid room range values'
+                });
+            }
+
+            // Calculate total rooms in range
+            const totalRoomsInRange = end - start + 1;
+            if (totalRoomsInRange < maxRooms) {
+                return res.status(400).json({
+                    message: 'Room range must accommodate maximum room count'
+                });
+            }
+
             const hotel = await Hotel.findByIdAndUpdate(
                 req.hotel._id,
                 { maxRooms, roomRange },
@@ -255,10 +288,7 @@ const authController = {
             });
         } catch (error) {
             console.error('Update settings error:', error);
-            res.status(500).json({ 
-                message: 'Error updating settings',
-                error: error.message
-            });
+            res.status(500).json({ message: 'Error updating settings' });
         }
     }
 };

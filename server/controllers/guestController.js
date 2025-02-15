@@ -248,6 +248,111 @@ const guestController = {
       console.error('Get approved guests error:', error);
       res.status(500).json({ message: 'Error fetching approved guests' });
     }
+  },
+
+  // Add loginGuest method
+  loginGuest: async (req, res) => {
+    try {
+      const { roomNumber, mobileNumber, hotelId } = req.body;
+
+      // Find guest
+      const guest = await Guest.findOne({
+        roomNumber,
+        mobileNumber,
+        hotelId,
+        status: 'approved'
+      });
+
+      if (!guest) {
+        return res.status(401).json({ 
+          message: 'Invalid credentials or pending approval' 
+        });
+      }
+
+      // Check if today is the check-in date
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const checkInDate = new Date(guest.createdAt);
+      checkInDate.setHours(0, 0, 0, 0);
+      const checkOutDate = new Date(guest.checkOutDate);
+      checkOutDate.setHours(23, 59, 59, 999);
+
+      if (today < checkInDate) {
+        return res.status(403).json({ 
+          message: 'Your stay has not started yet' 
+        });
+      }
+
+      if (today > checkOutDate) {
+        return res.status(403).json({ 
+          message: 'Your stay period has expired' 
+        });
+      }
+
+      // Generate token
+      const token = jwt.sign(
+        { 
+          guestId: guest._id,
+          checkInDate: guest.createdAt,
+          checkOutDate: guest.checkOutDate
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+
+      res.json({
+        token,
+        guest: {
+          id: guest._id,
+          name: guest.name,
+          roomNumber: guest.roomNumber,
+          checkInDate: guest.createdAt,
+          checkOutDate: guest.checkOutDate
+        }
+      });
+    } catch (error) {
+      console.error('Guest login error:', error);
+      res.status(500).json({ message: 'Login failed' });
+    }
+  },
+
+  // Add room validation middleware
+  validateRoomNumber: async (req, res, next) => {
+    try {
+      const { roomNumber, hotelId } = req.body;
+      const hotel = await Hotel.findById(hotelId);
+      
+      if (!hotel) {
+        return res.status(404).json({ message: 'Hotel not found' });
+      }
+
+      const roomNum = parseInt(roomNumber);
+      const start = parseInt(hotel.roomRange.start);
+      const end = parseInt(hotel.roomRange.end);
+
+      if (isNaN(roomNum) || roomNum < start || roomNum > end) {
+        return res.status(400).json({ 
+          message: `Room number must be between ${start} and ${end}` 
+        });
+      }
+
+      // Check if maximum room limit is reached
+      const currentGuests = await Guest.countDocuments({
+        hotelId,
+        status: 'approved'
+      });
+
+      if (currentGuests >= hotel.maxRooms) {
+        return res.status(400).json({ 
+          message: 'Hotel has reached maximum guest capacity' 
+        });
+      }
+
+      next();
+    } catch (error) {
+      console.error('Room validation error:', error);
+      res.status(500).json({ message: 'Validation failed' });
+    }
   }
 };
 
