@@ -3,7 +3,6 @@ const router = express.Router();
 const complaintController = require('../controllers/complaintController');
 const { auth } = require('../middleware/auth');
 const guestAuth = require('../middleware/authMiddleware');
-const Complaint = require('../model/Complaint');
 
 // Staff routes
 router.post('/predefined', auth, complaintController.addPredefinedComplaint);
