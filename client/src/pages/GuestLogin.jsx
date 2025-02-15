@@ -98,30 +98,41 @@ const GuestLogin = () => {
     setLoading(true);
 
     try {
-        console.log('Submitting registration for hotel:', hotelId); // Debug log
+        // Add debug logging
+        console.log('Attempting registration with data:', {
+            hotelId,
+            formData
+        });
 
-        // Ensure hotelId is available
+        // Validate hotelId
         if (!hotelId) {
             toast.error('Hotel ID is missing');
             return;
         }
 
+        // Validate mobile number
+        if (!validatePhone(formData.mobileNumber)) {
+            toast.error('Please enter a valid 10-digit Indian mobile number');
+            setLoading(false);
+            return;
+        }
+
+        const requestBody = {
+            name: formData.name,
+            roomNumber: formData.roomNumber,
+            mobileNumber: formData.mobileNumber,
+            checkOutDate: formData.checkOutDate,
+            hotelId: hotelId // Include hotelId in request body
+        };
+
+        console.log('Sending registration request:', requestBody);
+
         const response = await axios.post(
             `https://hotel-management-server-a3o3.onrender.com/api/guests/register/${hotelId}`,
-            {
-                name: formData.name,
-                roomNumber: formData.roomNumber,
-                mobileNumber: formData.mobileNumber,
-                checkOutDate: formData.checkOutDate
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }
+            requestBody
         );
 
-        console.log('Registration response:', response.data); // Debug log
+        console.log('Registration response:', response.data);
 
         if (response.data.token && response.data.guest) {
             localStorage.setItem('guestToken', response.data.token);
@@ -137,10 +148,8 @@ const GuestLogin = () => {
         }
     } catch (error) {
         console.error('Registration error:', error.response || error);
-        toast.error(
-            error.response?.data?.message || 
-            'Registration failed. Please try again.'
-        );
+        const errorMessage = error.response?.data?.message || 'Registration failed';
+        toast.error(errorMessage);
     } finally {
         setLoading(false);
     }

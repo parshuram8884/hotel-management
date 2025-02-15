@@ -25,40 +25,33 @@ const guestController = {
   registerGuest: async (req, res) => {
     try {
       const { name, roomNumber, mobileNumber, checkOutDate } = req.body;
-      const hotelId = req.params.hotelId; // Get hotelId from URL params
+      const hotelId = req.params.hotelId;
+
+      console.log('Received registration request:', {
+        body: req.body,
+        params: req.params,
+        hotelId
+      });
 
       // Validate hotelId
       if (!hotelId) {
+        console.log('Missing hotelId');
         return res.status(400).json({ message: 'Hotel ID is required' });
       }
 
-      // Find hotel first
+      // Find hotel
       const hotel = await Hotel.findById(hotelId);
       if (!hotel) {
+        console.log('Hotel not found for ID:', hotelId);
         return res.status(404).json({ message: 'Hotel not found' });
       }
 
-      console.log('Found hotel:', hotel.hotelName); // Debug log
+      console.log('Found hotel:', hotel.hotelName);
 
-      // Format input
-      const uppercaseName = name.toUpperCase();
-      const uppercaseRoomNumber = roomNumber.toUpperCase();
-
-      // Validate room number against hotel's range
-      const roomNum = parseInt(uppercaseRoomNumber);
-      const startNum = parseInt(hotel.roomRange.start);
-      const endNum = parseInt(hotel.roomRange.end);
-
-      if (isNaN(roomNum) || roomNum < startNum || roomNum > endNum) {
-        return res.status(400).json({
-          message: `Room number must be between ${hotel.roomRange.start} and ${hotel.roomRange.end}`
-        });
-      }
-
-      // Create new guest
+      // Create guest
       const guest = new Guest({
-        name: uppercaseName,
-        roomNumber: uppercaseRoomNumber,
+        name: name.toUpperCase(),
+        roomNumber: roomNumber.toUpperCase(),
         mobileNumber,
         hotelId,
         checkOutDate,
@@ -66,9 +59,8 @@ const guestController = {
       });
 
       await guest.save();
-      console.log('Guest registered:', guest); // Debug log
+      console.log('Guest saved successfully:', guest);
 
-      // Generate token
       const token = jwt.sign(
         { guestId: guest._id },
         process.env.JWT_SECRET,
@@ -76,7 +68,7 @@ const guestController = {
       );
 
       res.status(201).json({
-        message: 'Registration submitted. Awaiting staff approval.',
+        message: 'Registration submitted successfully',
         token,
         guest: {
           id: guest._id,
@@ -87,7 +79,7 @@ const guestController = {
         }
       });
     } catch (error) {
-      console.error('Register guest error:', error);
+      console.error('Guest registration error:', error);
       res.status(500).json({ 
         message: 'Registration failed', 
         error: error.message 
