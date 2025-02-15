@@ -235,60 +235,84 @@ const authController = {
 
     updateSettings: async (req, res) => {
         try {
+            console.log('Received settings update request:', req.body); // Debug log
             const { maxRooms, roomRange } = req.body;
             
+            // Check if we have the hotel ID from auth
+            if (!req.hotel || !req.hotel._id) {
+                console.log('No hotel found in request:', req.hotel); // Debug log
+                return res.status(401).json({ 
+                    message: 'Authentication required' 
+                });
+            }
+
             // Validate maxRooms
-            if (!maxRooms || maxRooms < 1 || maxRooms > 1000) {
+            if (!maxRooms || typeof maxRooms !== 'number') {
+                return res.status(400).json({ 
+                    message: 'Maximum rooms must be a valid number' 
+                });
+            }
+
+            if (maxRooms < 1 || maxRooms > 1000) {
                 return res.status(400).json({ 
                     message: 'Maximum rooms must be between 1 and 1000' 
                 });
             }
 
-            // Validate room range format
-            if (!roomRange || !roomRange.start || !roomRange.end ||
-                roomRange.start.length < 1 || roomRange.end.length < 1) {
+            // Validate roomRange
+            if (!roomRange || typeof roomRange !== 'object') {
                 return res.status(400).json({
-                    message: 'Invalid room range format'
+                    message: 'Room range must be provided'
                 });
             }
 
-            // Validate room range values
-            const start = parseInt(roomRange.start);
-            const end = parseInt(roomRange.end);
-            if (isNaN(start) || isNaN(end) || start >= end || start < 1) {
+            if (!roomRange.start || !roomRange.end) {
                 return res.status(400).json({
-                    message: 'Invalid room range values'
+                    message: 'Room range must have start and end values'
                 });
             }
 
-            // Calculate total rooms in range
-            const totalRoomsInRange = end - start + 1;
-            if (totalRoomsInRange < maxRooms) {
-                return res.status(400).json({
-                    message: 'Room range must accommodate maximum room count'
-                });
-            }
+            // Convert room numbers to strings if they're numbers
+            const startRoom = roomRange.start.toString();
+            const endRoom = roomRange.end.toString();
 
-            const hotel = await Hotel.findByIdAndUpdate(
-                req.hotel._id,
-                { maxRooms, roomRange },
-                { new: true, runValidators: true }
-            );
-
-            if (!hotel) {
-                return res.status(404).json({ message: 'Hotel not found' });
-            }
-
-            res.json({
-                message: 'Settings updated successfully',
-                settings: {
-                    maxRooms: hotel.maxRooms,
-                    roomRange: hotel.roomRange
+            // Update hotel settings with try-catch
+            try {
+                const hotel = await Hotel.findById(req.hotel._id);
+                if (!hotel) {
+                    return res.status(404).json({ message: 'Hotel not found' });
                 }
-            });
+
+                hotel.maxRooms = maxRooms;
+                hotel.roomRange = {
+                    start: startRoom,
+                    end: endRoom
+                };
+
+                await hotel.save();
+
+                console.log('Settings updated successfully:', hotel); // Debug log
+
+                res.json({
+                    message: 'Settings updated successfully',
+                    settings: {
+                        maxRooms: hotel.maxRooms,
+                        roomRange: hotel.roomRange
+                    }
+                });
+            } catch (saveError) {
+                console.error('Error saving hotel settings:', saveError);
+                return res.status(400).json({ 
+                    message: 'Error saving settings',
+                    error: saveError.message 
+                });
+            }
         } catch (error) {
             console.error('Update settings error:', error);
-            res.status(500).json({ message: 'Error updating settings' });
+            res.status(500).json({ 
+                message: 'Error updating settings',
+                error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+            });
         }
     }
 };
