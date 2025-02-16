@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import StatisticsCard from '../components/StatisticsCard';
 import ComplaintTable from '../components/ComplaintTable';
-import OrderTable from '../components/OrderTable';
+import { OrderTable } from '../components/OrderTable';
 import HotelTable from '../components/HotelTable';
 
 function AdminDashboard() {
