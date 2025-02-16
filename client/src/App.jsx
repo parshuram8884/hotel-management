@@ -19,6 +19,8 @@ import OrderTracking from './pages/OrderTracking';
 import StaffOrderManagement from './pages/StaffOrderManagement';
 import OrderHistory from './pages/OrderHistory';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminLogin from './pages/AdminLogin';
+import AdminPrivateRoute from './components/AdminPrivateRoute';
 
 function App() {
   return (
@@ -39,8 +41,13 @@ function App() {
         <Route path="/guest/login/:hotelId" element={<GuestLogin />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/guest/status/:guestId" element={<GuestStatus />} />
+
+        {/* Admin Routes */}
+        <Route element={<AdminPrivateRoute />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+        </Route>
 
         {/* Staff Routes */}
         <Route element={<StaffPrivateRoute />}>
