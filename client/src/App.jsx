@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Login from './pages/Login';
 import StaffDashboard from './pages/StaffDashboard';
 import ForgotPassword from './pages/ForgotPassword';
@@ -22,7 +22,7 @@ import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">Hotel Management</Link>
@@ -133,7 +133,7 @@ function App() {
           }
         />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 
