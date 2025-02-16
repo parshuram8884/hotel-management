@@ -1,6 +1,6 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, Outlet } from 'react-router-dom';
 
-export const StaffPrivateRoute = ({ children }) => {
+export const StaffPrivateRoute = () => {
   const token = localStorage.getItem('token');
   const hotelInfo = localStorage.getItem('hotelInfo');
 
@@ -8,10 +8,10 @@ export const StaffPrivateRoute = ({ children }) => {
     return <Navigate to="/" replace />;
   }
 
-  return children;
+  return <Outlet />;
 };
 
-export const GuestPrivateRoute = ({ children }) => {
+export const GuestPrivateRoute = () => {
   const token = localStorage.getItem('guestToken');
   const guestInfo = JSON.parse(localStorage.getItem('guestInfo') || '{}');
 
@@ -19,10 +19,9 @@ export const GuestPrivateRoute = ({ children }) => {
     return <Navigate to="/" replace />;
   }
 
-  // If guest exists but is not approved, redirect to status page
   if (guestInfo.status !== 'approved') {
     return <Navigate to={`/guest/status/${guestInfo._id}`} replace />;
   }
 
-  return children;
+  return <Outlet />;
 };
