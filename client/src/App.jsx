@@ -33,105 +33,33 @@ function App() {
       </nav>
 
       <Routes>
+        {/* Public Routes */}
         <Route path="/signup" element={<Signup />} />
         <Route path="/" element={<Login />} />
         <Route path="/guest/login/:hotelId" element={<GuestLogin />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/guest/status/:guestId" element={<GuestStatus />} />
 
         {/* Staff Routes */}
-        <Route
-          path="/staff/dashboard"
-          element={
-            <StaffPrivateRoute>
-              <StaffDashboard />
-            </StaffPrivateRoute>
-          }
-        />
-        <Route
-          path="/staff/guest-approval"
-          element={
-            <StaffPrivateRoute>
-              <StaffApprovalPage />
-            </StaffPrivateRoute>
-          }
-        />
-        <Route
-          path="/staff/complaints"
-          element={
-            <StaffPrivateRoute>
-              <ComplaintManagement />
-            </StaffPrivateRoute>
-          }
-        />
-        <Route
-          path="/staff/food-management"
-          element={
-            <StaffPrivateRoute>
-              <FoodManagement />
-            </StaffPrivateRoute>
-          }
-        />
-        <Route
-          path="/staff/orders"
-          element={
-            <StaffPrivateRoute>
-              <StaffOrderManagement />
-            </StaffPrivateRoute>
-          }
-        />
+        <Route element={<StaffPrivateRoute />}>
+          <Route path="/staff/dashboard" element={<StaffDashboard />} />
+          <Route path="/staff/guest-approval" element={<StaffApprovalPage />} />
+          <Route path="/staff/complaints" element={<ComplaintManagement />} />
+          <Route path="/staff/food-management" element={<FoodManagement />} />
+          <Route path="/staff/orders" element={<StaffOrderManagement />} />
+        </Route>
 
-        {/* Protected Guest Routes */}
-        <Route path="/guest/status/:guestId" element={<GuestStatus />} />
-        <Route
-          path="/guest/dashboard"
-          element={
-            <GuestPrivateRoute>
-              <GuestDashboard />
-            </GuestPrivateRoute>
-          }
-        />
-        <Route
-          path="/guest/complaint-form"
-          element={
-            <GuestPrivateRoute>
-              <ComplaintForm />
-            </GuestPrivateRoute>
-          }
-        />
-        <Route
-          path="/guest/complaints"
-          element={
-            <GuestPrivateRoute>
-              <GuestComplaintTracking />
-            </GuestPrivateRoute>
-          }
-        />
-        <Route
-          path="/guest/food-ordering"
-          element={
-            <GuestPrivateRoute>
-              <FoodOrdering />
-            </GuestPrivateRoute>
-          }
-        />
-        <Route
-          path="/guest/orders/tracking"
-          element={
-            <GuestPrivateRoute>
-              <OrderTracking />
-            </GuestPrivateRoute>
-          }
-        />
-        <Route
-          path="/guest/orders/history"
-          element={
-            <GuestPrivateRoute>
-              <OrderHistory />
-            </GuestPrivateRoute>
-          }
-        />
+        {/* Guest Routes */}
+        <Route element={<GuestPrivateRoute />}>
+          <Route path="/guest/dashboard" element={<GuestDashboard />} />
+          <Route path="/guest/complaint-form" element={<ComplaintForm />} />
+          <Route path="/guest/complaints" element={<GuestComplaintTracking />} />
+          <Route path="/guest/food-ordering" element={<FoodOrdering />} />
+          <Route path="/guest/orders/tracking" element={<OrderTracking />} />
+          <Route path="/guest/orders/history" element={<OrderHistory />} />
+        </Route>
       </Routes>
     </Router>
   );
