@@ -16,7 +16,23 @@ export const verifyAdminCredentials = (username, password) => {
   return compareStrings(username, validUsername) && compareStrings(password, validPassword);
 };
 
-// Remove stored authentication - require login every time
+export const setAdminAuth = () => {
+  const expiryTime = Date.now() + (5 * 60 * 1000); // 5 minutes from now
+  sessionStorage.setItem('adminAuthExpiry', expiryTime.toString());
+  return true;
+};
+
 export const checkAdminAuth = () => {
-  return false; // Always require login
+  const expiryTime = sessionStorage.getItem('adminAuthExpiry');
+  if (!expiryTime) return false;
+  
+  const isValid = Date.now() < parseInt(expiryTime);
+  if (!isValid) {
+    sessionStorage.removeItem('adminAuthExpiry');
+  }
+  return isValid;
+};
+
+export const clearAdminAuth = () => {
+  sessionStorage.removeItem('adminAuthExpiry');
 };

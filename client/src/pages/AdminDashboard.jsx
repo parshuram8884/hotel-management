@@ -1,16 +1,38 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { checkAdminAuth, clearAdminAuth } from '../utils/auth';
 import StatisticsCard from '../components/StatisticsCard';
 import ComplaintTable from '../components/ComplaintTable';
 import OrderTable from '../components/OrderTable';
 import HotelTable from '../components/HotelTable';
 
 function AdminDashboard() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalHotels: 0,
     totalGuests: 0,
     activeComplaints: 0,
     pendingOrders: 0
   });
+
+  useEffect(() => {
+    const checkAuth = () => {
+      if (!checkAdminAuth()) {
+        clearAdminAuth();
+        navigate('/admin/login', { replace: true });
+      }
+    };
+
+    // Check auth status every 30 seconds
+    const authTimer = setInterval(checkAuth, 30000);
+    
+    // Initial check
+    checkAuth();
+
+    return () => {
+      clearInterval(authTimer);
+    };
+  }, [navigate]);
 
   useEffect(() => {
     fetchDashboardStats();
