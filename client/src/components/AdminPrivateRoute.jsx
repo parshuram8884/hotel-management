@@ -1,8 +1,8 @@
-import { Navigate, Outlet } from 'react-router-dom';
-import { checkAdminAuth } from '../utils/auth';
+import { Navigate } from 'react-router-dom';
 
 const AdminPrivateRoute = () => {
-  return checkAdminAuth() ? <Outlet /> : <Navigate to="/admin/login" replace />;
+  // Always redirect to login page
+  return <Navigate to="/admin/login" replace />;
 };
 
 export default AdminPrivateRoute;

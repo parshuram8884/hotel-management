@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { verifyAdminCredentials, setAdminAuth } from '../utils/auth';
+import { verifyAdminCredentials } from '../utils/auth';
 
 const AdminLogin = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -10,8 +10,7 @@ const AdminLogin = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (verifyAdminCredentials(credentials.username, credentials.password)) {
-      setAdminAuth();
-      navigate('/admin');
+      navigate('/admin', { replace: true });
     } else {
       setError('Invalid credentials');
       setCredentials({ username: '', password: '' });
