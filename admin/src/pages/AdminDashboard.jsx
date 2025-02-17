@@ -13,7 +13,7 @@ function AdminDashboard() {
       navigate('/login');
     }
     fetchHotelStats();
-  }, [selectedYear, selectedMonth]);
+  }, [selectedYear, selectedMonth, navigate]);
 
   const fetchHotelStats = async () => {
     try {
