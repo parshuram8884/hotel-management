@@ -24,12 +24,6 @@ function App() {
   return (
     <Router>
       
-          <Link className="navbar-brand" to="/">Hotel Management</Link>
-          <div className="navbar-nav">
-            <Link className="nav-link" to="/admin">Admin Dashboard</Link>
-          </div>
-       
-
       <Routes>
         {/* Public Routes */}
         <Route path="/signup" element={<Signup />} />
