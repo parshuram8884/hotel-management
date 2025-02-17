@@ -18,21 +18,17 @@ import FoodOrdering from './pages/FoodOrdering';
 import OrderTracking from './pages/OrderTracking';
 import StaffOrderManagement from './pages/StaffOrderManagement';
 import OrderHistory from './pages/OrderHistory';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminLogin from './pages/AdminLogin';
-import AdminPrivateRoute from './components/AdminPrivateRoute';
+
 
 function App() {
   return (
     <Router>
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div className="container-fluid">
+      
           <Link className="navbar-brand" to="/">Hotel Management</Link>
           <div className="navbar-nav">
             <Link className="nav-link" to="/admin">Admin Dashboard</Link>
           </div>
-        </div>
-      </nav>
+       
 
       <Routes>
         {/* Public Routes */}
@@ -45,9 +41,7 @@ function App() {
         <Route path="/guest/status/:guestId" element={<GuestStatus />} />
 
         {/* Admin Routes */}
-        <Route element={<AdminPrivateRoute />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-        </Route>
+      
 
         {/* Staff Routes */}
         <Route element={<StaffPrivateRoute />}>
