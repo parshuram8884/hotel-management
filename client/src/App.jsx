@@ -31,7 +31,6 @@ function App() {
         <Route path="/guest/login/:hotelId" element={<GuestLogin />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/guest/status/:guestId" element={<GuestStatus />} />
 
         {/* Admin Routes */}
