@@ -1,7 +1,6 @@
-const Hotel = require('../models/Hotel');
-const Guest = require('../models/Guest');
-const Order = require('../models/Order');
-const Request = require('../models/Request');
+const Hotel = require('../model/Hotel');
+const Guest = require('../model/Guest');
+const Order = require('../model/Order');
 
 exports.getHotelStats = async (req, res) => {
     try {
@@ -14,31 +13,23 @@ exports.getHotelStats = async (req, res) => {
             });
         }
 
-        // Set proper headers
         res.setHeader('Content-Type', 'application/json');
 
-        // Convert month and year to date range
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0);
 
-        // Get all hotels
-        const hotels = await Hotel.find();
+        // Get all hotels with their stats
+        const hotels = await Hotel.find().select('hotelName email maxRooms roomRange stats');
         
         // Collect stats for each hotel
         const hotelStats = await Promise.all(hotels.map(async (hotel) => {
-            // Get guest count
+            // Get guest count for the month
             const totalGuests = await Guest.countDocuments({
                 hotelId: hotel._id,
                 createdAt: { $gte: startDate, $lte: endDate }
             });
 
-            // Get request count
-            const guestRequests = await Request.countDocuments({
-                hotelId: hotel._id,
-                createdAt: { $gte: startDate, $lte: endDate }
-            });
-
-            // Get order stats
+            // Get order stats for the month
             const orders = await Order.find({
                 hotelId: hotel._id,
                 createdAt: { $gte: startDate, $lte: endDate }
@@ -49,12 +40,12 @@ exports.getHotelStats = async (req, res) => {
 
             return {
                 _id: hotel._id,
-                name: hotel.name,
+                name: hotel.hotelName,
                 totalGuests,
-                guestRequests,
+                guestRequests: hotel.stats?.totalRequests || 0, // Use existing stats from Hotel model
                 foodOrders,
                 revenue,
-                status: hotel.status || 'inactive'
+                status: hotel.maxRooms > 0 ? 'active' : 'inactive'
             };
         }));
 
@@ -74,4 +65,4 @@ exports.getHotelStats = async (req, res) => {
             error: error.message
         });
     }
-}
+};
