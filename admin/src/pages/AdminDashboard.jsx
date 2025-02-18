@@ -1,29 +1,72 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { checkAdminAuth } from '../utils/auth';
+import { API_BASE_URL } from '../utils/config';
 
 function AdminDashboard() {
   const navigate = useNavigate();
   const [hotelStats, setHotelStats] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
 
   useEffect(() => {
     if (!checkAdminAuth()) {
-      navigate('/login');
+      navigate('/');
+      return;
     }
     fetchHotelStats();
   }, [selectedYear, selectedMonth, navigate]);
 
   const fetchHotelStats = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
-      const response = await fetch(`/api/admin/hotel-stats?year=${selectedYear}&month=${selectedMonth}`);
+      const response = await fetch(`${API_BASE_URL}/api/hotels/stats?year=${selectedYear}&month=${selectedMonth}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch hotel statistics');
+      }
+
       const data = await response.json();
-      setHotelStats(data);
-    } catch (error) {
-      console.error('Error fetching stats:', error);
+      if (data.success) {
+        setHotelStats(data.hotels || []);
+      } else {
+        throw new Error(data.message || 'Failed to fetch data');
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error('Error fetching stats:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  const calculateTotals = () => {
+    return hotelStats.reduce((acc, hotel) => ({
+      guests: acc.guests + (hotel.totalGuests || 0),
+      orders: acc.orders + (hotel.foodOrders || 0),
+      revenue: acc.revenue + (hotel.revenue || 0)
+    }), { guests: 0, orders: 0, revenue: 0 });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-vh-100 d-flex justify-content-center align-items-center">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  const totals = calculateTotals();
 
   return (
     <div className="min-vh-100 bg-light">
@@ -47,6 +90,13 @@ function AdminDashboard() {
       </nav>
 
       <div className="container-fluid p-4">
+        {error && (
+          <div className="alert alert-danger" role="alert">
+            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+            {error}
+          </div>
+        )}
+
         <div className="row mb-4">
           <div className="col">
             <div className="card border-0 shadow-sm">
@@ -84,96 +134,104 @@ function AdminDashboard() {
         </div>
 
         <div className="row mb-4 g-3">
-          {hotelStats.length > 0 && (
-            <>
-              <div className="col-md-4">
-                <div className="card border-0 shadow-sm">
-                  <div className="card-body p-4">
-                    <div className="d-flex align-items-center">
-                      <div className="rounded-circle p-3 bg-primary bg-opacity-10">
-                        <i className="bi bi-people fs-4 text-primary"></i>
-                      </div>
-                      <div className="ms-3">
-                        <h6 className="mb-1 text-muted">Total Guests</h6>
-                        <h3 className="mb-0">{hotelStats.reduce((sum, hotel) => sum + hotel.totalGuests, 0)}</h3>
-                      </div>
-                    </div>
+          <div className="col-md-4">
+            <div className="card border-0 shadow-sm">
+              <div className="card-body p-4">
+                <div className="d-flex align-items-center">
+                  <div className="rounded-circle p-3 bg-primary bg-opacity-10">
+                    <i className="bi bi-people fs-4 text-primary"></i>
+                  </div>
+                  <div className="ms-3">
+                    <h6 className="mb-1 text-muted">Total Guests</h6>
+                    <h3 className="mb-0">{totals.guests}</h3>
                   </div>
                 </div>
               </div>
-              <div className="col-md-4">
-                <div className="card border-0 shadow-sm">
-                  <div className="card-body p-4">
-                    <div className="d-flex align-items-center">
-                      <div className="rounded-circle p-3 bg-success bg-opacity-10">
-                        <i className="bi bi-cart fs-4 text-success"></i>
-                      </div>
-                      <div className="ms-3">
-                        <h6 className="mb-1 text-muted">Total Orders</h6>
-                        <h3 className="mb-0">{hotelStats.reduce((sum, hotel) => sum + hotel.foodOrders, 0)}</h3>
-                      </div>
-                    </div>
+            </div>
+          </div>
+
+          <div className="col-md-4">
+            <div className="card border-0 shadow-sm">
+              <div className="card-body p-4">
+                <div className="d-flex align-items-center">
+                  <div className="rounded-circle p-3 bg-success bg-opacity-10">
+                    <i className="bi bi-cart fs-4 text-success"></i>
+                  </div>
+                  <div className="ms-3">
+                    <h6 className="mb-1 text-muted">Total Orders</h6>
+                    <h3 className="mb-0">{totals.orders}</h3>
                   </div>
                 </div>
               </div>
-              <div className="col-md-4">
-                <div className="card border-0 shadow-sm">
-                  <div className="card-body p-4">
-                    <div className="d-flex align-items-center">
-                      <div className="rounded-circle p-3 bg-warning bg-opacity-10">
-                        <i className="bi bi-currency-dollar fs-4 text-warning"></i>
-                      </div>
-                      <div className="ms-3">
-                        <h6 className="mb-1 text-muted">Total Revenue</h6>
-                        <h3 className="mb-0">${hotelStats.reduce((sum, hotel) => sum + hotel.revenue, 0).toLocaleString()}</h3>
-                      </div>
-                    </div>
+            </div>
+          </div>
+
+          <div className="col-md-4">
+            <div className="card border-0 shadow-sm">
+              <div className="card-body p-4">
+                <div className="d-flex align-items-center">
+                  <div className="rounded-circle p-3 bg-warning bg-opacity-10">
+                    <i className="bi bi-currency-dollar fs-4 text-warning"></i>
+                  </div>
+                  <div className="ms-3">
+                    <h6 className="mb-1 text-muted">Total Revenue</h6>
+                    <h3 className="mb-0">${totals.revenue.toLocaleString()}</h3>
                   </div>
                 </div>
               </div>
-            </>
-          )}
+            </div>
+          </div>
         </div>
 
         <div className="card border-0 shadow-sm">
           <div className="card-body p-4">
             <h5 className="card-title mb-4">Hotels Overview</h5>
-            <div className="table-responsive">
-              <table className="table table-hover align-middle">
-                <thead className="table-light">
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Hotel Name</th>
-                    <th scope="col">Guests</th>
-                    <th scope="col">Requests</th>
-                    <th scope="col">Orders</th>
-                    <th scope="col">Revenue</th>
-                    <th scope="col">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {hotelStats.map((hotel) => (
-                    <tr key={hotel.id}>
-                      <td>{hotel.id}</td>
-                      <td>{hotel.name}</td>
-                      <td>{hotel.totalGuests}</td>
-                      <td>
-                        <span className="badge rounded-pill bg-info">{hotel.guestRequests}</span>
-                      </td>
-                      <td>
-                        <span className="badge rounded-pill bg-success">{hotel.foodOrders}</span>
-                      </td>
-                      <td>${hotel.revenue.toLocaleString()}</td>
-                      <td>
-                        <span className={`badge rounded-pill bg-${hotel.status === 'active' ? 'success' : 'warning'}`}>
-                          {hotel.status}
-                        </span>
-                      </td>
+            {hotelStats.length === 0 ? (
+              <div className="text-center py-4">
+                <p className="text-muted">No data available for the selected period</p>
+              </div>
+            ) : (
+              <div className="table-responsive">
+                <table className="table table-hover align-middle">
+                  <thead className="table-light">
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Hotel Name</th>
+                      <th scope="col">Guests</th>
+                      <th scope="col">Requests</th>
+                      <th scope="col">Orders</th>
+                      <th scope="col">Revenue</th>
+                      <th scope="col">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {hotelStats.map((hotel) => (
+                      <tr key={hotel._id}>
+                        <td>{hotel._id}</td>
+                        <td>{hotel.name}</td>
+                        <td>{hotel.totalGuests || 0}</td>
+                        <td>
+                          <span className="badge rounded-pill bg-info">
+                            {hotel.guestRequests || 0}
+                          </span>
+                        </td>
+                        <td>
+                          <span className="badge rounded-pill bg-success">
+                            {hotel.foodOrders || 0}
+                          </span>
+                        </td>
+                        <td>${(hotel.revenue || 0).toLocaleString()}</td>
+                        <td>
+                          <span className={`badge rounded-pill bg-${hotel.status === 'active' ? 'success' : 'warning'}`}>
+                            {hotel.status || 'inactive'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       </div>
