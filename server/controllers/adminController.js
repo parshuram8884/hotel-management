@@ -29,14 +29,16 @@ exports.getHotelStats = async (req, res) => {
                 createdAt: { $gte: startDate, $lte: endDate }
             });
 
-            // Get order stats for the month
+            // Exclude canceled orders
             const orders = await Order.find({
                 hotelId: hotel._id,
-                createdAt: { $gte: startDate, $lte: endDate }
+                createdAt: { $gte: startDate, $lte: endDate },
+                status: { $ne: 'cancelled' } // Exclude cancelled orders
             });
 
             const foodOrders = orders.length;
-            const revenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+            // Convert to rupees (assuming order amounts are in dollars)
+            const revenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0) * 83; // Using approximate conversion rate
 
             return {
                 _id: hotel._id,

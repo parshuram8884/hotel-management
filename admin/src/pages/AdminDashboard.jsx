@@ -64,6 +64,15 @@ function AdminDashboard() {
     }), { guests: 0, orders: 0, revenue: 0 });
   };
 
+  // Add currency formatter
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
   if (isLoading) {
     return (
       <div className="min-vh-100 d-flex justify-content-center align-items-center">
@@ -179,11 +188,11 @@ function AdminDashboard() {
               <div className="card-body p-4">
                 <div className="d-flex align-items-center">
                   <div className="rounded-circle p-3 bg-warning bg-opacity-10">
-                    <i className="bi bi-currency-dollar fs-4 text-warning"></i>
+                    <i className="bi bi-currency-rupee fs-4 text-warning"></i>
                   </div>
                   <div className="ms-3">
                     <h6 className="mb-1 text-muted">Total Revenue</h6>
-                    <h3 className="mb-0">${totals.revenue.toLocaleString()}</h3>
+                    <h3 className="mb-0">{formatCurrency(totals.revenue)}</h3>
                   </div>
                 </div>
               </div>
@@ -228,7 +237,7 @@ function AdminDashboard() {
                             {hotel.foodOrders || 0}
                           </span>
                         </td>
-                        <td>${(hotel.revenue || 0).toLocaleString()}</td>
+                        <td>{formatCurrency(hotel.revenue)}</td>
                         <td>
                           <span className={`badge rounded-pill bg-${hotel.status === 'active' ? 'success' : 'warning'}`}>
                             {hotel.status || 'inactive'}
