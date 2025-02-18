@@ -27,11 +27,13 @@ function AdminDashboard() {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-        }
+        },
+        credentials: 'include' // Include credentials if using cookies
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch hotel statistics');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch hotel statistics');
       }
 
       const data = await response.json();
@@ -41,7 +43,7 @@ function AdminDashboard() {
         throw new Error(data.message || 'Failed to fetch data');
       }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Network error. Please try again later.');
       console.error('Error fetching stats:', err);
     } finally {
       setIsLoading(false);

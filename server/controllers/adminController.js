@@ -7,6 +7,13 @@ exports.getHotelStats = async (req, res) => {
     try {
         const { year, month } = req.query;
         
+        if (!year || !month) {
+            return res.status(400).json({
+                success: false,
+                message: 'Year and month are required'
+            });
+        }
+
         // Convert month and year to date range
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0);
