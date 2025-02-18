@@ -26,25 +26,31 @@ function AdminDashboard() {
       const response = await fetch(`${API_BASE_URL}/api/hotels/stats?year=${selectedYear}&month=${selectedMonth}`, {
         method: 'GET',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
-        },
-        credentials: 'include' // Include credentials if using cookies
+        }
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch hotel statistics');
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Received non-JSON response from server');
       }
 
       const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch hotel statistics');
+      }
+
       if (data.success) {
         setHotelStats(data.hotels || []);
       } else {
         throw new Error(data.message || 'Failed to fetch data');
       }
     } catch (err) {
-      setError(err.message || 'Network error. Please try again later.');
+      setError(err.message || 'Network error. Please check your connection.');
       console.error('Error fetching stats:', err);
+      setHotelStats([]); // Reset stats on error
     } finally {
       setIsLoading(false);
     }

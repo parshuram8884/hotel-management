@@ -14,6 +14,9 @@ exports.getHotelStats = async (req, res) => {
             });
         }
 
+        // Set proper headers
+        res.setHeader('Content-Type', 'application/json');
+
         // Convert month and year to date range
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0);
@@ -55,14 +58,17 @@ exports.getHotelStats = async (req, res) => {
             };
         }));
 
-        res.json({
+        const response = {
             success: true,
-            hotels: hotelStats
-        });
+            hotels: hotelStats,
+            timestamp: new Date().toISOString()
+        };
+
+        return res.json(response);
 
     } catch (error) {
         console.error('Error in getHotelStats:', error);
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: 'Error fetching hotel statistics',
             error: error.message

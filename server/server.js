@@ -1,5 +1,3 @@
-
-
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -9,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const guestRoutes = require('./routes/guestRoutes')
 const complaintRoutes = require('./routes/complaintRoutes')
 const foodRoutes = require('./routes/foodRoutes')
+const adminRoutes = require('./routes/adminRoutes');
 const cookieParser = require('cookie-parser');
 
 const app = express();
@@ -62,6 +61,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/guests', guestRoutes);
 app.use('/api/complaints', complaintRoutes);
 app.use('/api/food', foodRoutes);
+app.use('/api/hotels', adminRoutes);  // Add this line
 
 // Error handling middleware
 app.use((err, req, res, next) => {
