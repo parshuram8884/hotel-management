@@ -44,8 +44,8 @@ exports.getHotelStats = async (req, res) => {
             });
 
             const foodOrders = orders.length;
-            // Convert to rupees (assuming order amounts are in dollars)
-            const revenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0) * 83; // Using approximate conversion rate
+            // Remove the dollar conversion, use amount directly as it's already in rupees
+            const revenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
 
             return {
                 _id: hotel._id,

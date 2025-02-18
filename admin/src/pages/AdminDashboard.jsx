@@ -66,12 +66,14 @@ function AdminDashboard() {
   };
 
   // Add currency formatter
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
+  const formatIndianRupees = (amount) => {
+    const formatter = new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
+      minimumFractionDigits: 0,
       maximumFractionDigits: 0
-    }).format(amount);
+    });
+    return formatter.format(amount);
   };
 
   if (isLoading) {
@@ -209,7 +211,7 @@ function AdminDashboard() {
                   </div>
                   <div className="ms-3">
                     <h6 className="mb-1 text-muted">Total Revenue</h6>
-                    <h3 className="mb-0">{formatCurrency(totals.revenue)}</h3>
+                    <h3 className="mb-0">{formatIndianRupees(totals.revenue)}</h3>
                   </div>
                 </div>
               </div>
@@ -254,7 +256,7 @@ function AdminDashboard() {
                             {hotel.foodOrders || 0}
                           </span>
                         </td>
-                        <td>{formatCurrency(hotel.revenue)}</td>
+                        <td>{formatIndianRupees(hotel.revenue)}</td>
                         <td>
                           <span className={`badge rounded-pill bg-${hotel.status === 'active' ? 'success' : 'warning'}`}>
                             {hotel.status || 'inactive'}
