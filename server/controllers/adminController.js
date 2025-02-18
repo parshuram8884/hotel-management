@@ -1,6 +1,7 @@
 const Hotel = require('../model/Hotel');
 const Guest = require('../model/Guest');
 const Order = require('../model/Order');
+const Complaint = require('../model/Complaint'); // Add this import
 
 exports.getHotelStats = async (req, res) => {
     try {
@@ -19,12 +20,18 @@ exports.getHotelStats = async (req, res) => {
         const endDate = new Date(year, month, 0);
 
         // Get all hotels with their stats
-        const hotels = await Hotel.find().select('hotelName email maxRooms roomRange stats');
+        const hotels = await Hotel.find().select('hotelName email maxRooms roomRange');
         
         // Collect stats for each hotel
         const hotelStats = await Promise.all(hotels.map(async (hotel) => {
             // Get guest count for the month
             const totalGuests = await Guest.countDocuments({
+                hotelId: hotel._id,
+                createdAt: { $gte: startDate, $lte: endDate }
+            });
+
+            // Get complaint count instead of requests
+            const complaintCount = await Complaint.countDocuments({
                 hotelId: hotel._id,
                 createdAt: { $gte: startDate, $lte: endDate }
             });
@@ -44,7 +51,7 @@ exports.getHotelStats = async (req, res) => {
                 _id: hotel._id,
                 name: hotel.hotelName,
                 totalGuests,
-                guestRequests: hotel.stats?.totalRequests || 0, // Use existing stats from Hotel model
+                complaints: complaintCount, // Changed from guestRequests
                 foodOrders,
                 revenue,
                 status: hotel.maxRooms > 0 ? 'active' : 'inactive'

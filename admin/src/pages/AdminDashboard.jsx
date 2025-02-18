@@ -59,9 +59,10 @@ function AdminDashboard() {
   const calculateTotals = () => {
     return hotelStats.reduce((acc, hotel) => ({
       guests: acc.guests + (hotel.totalGuests || 0),
+      complaints: acc.complaints + (hotel.complaints || 0), // Changed from requests
       orders: acc.orders + (hotel.foodOrders || 0),
       revenue: acc.revenue + (hotel.revenue || 0)
-    }), { guests: 0, orders: 0, revenue: 0 });
+    }), { guests: 0, complaints: 0, orders: 0, revenue: 0 });
   };
 
   // Add currency formatter
@@ -167,6 +168,22 @@ function AdminDashboard() {
             </div>
           </div>
 
+          <div className="col-md-3">
+            <div className="card border-0 shadow-sm">
+              <div className="card-body p-4">
+                <div className="d-flex align-items-center">
+                  <div className="rounded-circle p-3 bg-danger bg-opacity-10">
+                    <i className="bi bi-exclamation-triangle fs-4 text-danger"></i>
+                  </div>
+                  <div className="ms-3">
+                    <h6 className="mb-1 text-muted">Total Complaints</h6>
+                    <h3 className="mb-0">{totals.complaints}</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="col-md-4">
             <div className="card border-0 shadow-sm">
               <div className="card-body p-4">
@@ -215,7 +232,7 @@ function AdminDashboard() {
                       <th scope="col">#</th>
                       <th scope="col">Hotel Name</th>
                       <th scope="col">Guests</th>
-                      <th scope="col">Requests</th>
+                      <th scope="col">Complaints</th> {/* Changed from Requests */}
                       <th scope="col">Orders</th>
                       <th scope="col">Revenue</th>
                       <th scope="col">Status</th>
@@ -228,8 +245,8 @@ function AdminDashboard() {
                         <td>{hotel.name}</td>
                         <td>{hotel.totalGuests || 0}</td>
                         <td>
-                          <span className="badge rounded-pill bg-info">
-                            {hotel.guestRequests || 0}
+                          <span className="badge rounded-pill bg-danger"> {/* Changed from bg-info */}
+                            {hotel.complaints || 0}
                           </span>
                         </td>
                         <td>
