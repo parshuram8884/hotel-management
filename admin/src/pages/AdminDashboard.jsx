@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { checkAdminAuth } from '../utils/auth';
-import { API_BASE_URL } from '../utils/config';
+import { API_BASE_URL, fetchAPI } from '../utils/config';
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -23,25 +23,7 @@ function AdminDashboard() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/hotels/stats?year=${selectedYear}&month=${selectedMonth}`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        }
-      });
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        throw new Error('Received non-JSON response from server');
-      }
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to fetch hotel statistics');
-      }
-
+      const data = await fetchAPI(`/api/hotels/stats?year=${selectedYear}&month=${selectedMonth}`);
       if (data.success) {
         setHotelStats(data.hotels || []);
       } else {

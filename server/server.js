@@ -33,8 +33,13 @@ if (!fs.existsSync(uploadDir)) {
 // Middleware
 app.use(cookieParser());
 app.use(cors({
-  origin: ['https://hotel-management-client.onrender.com', 'https://hotel-management-admin-7t7g.onrender.com'],
-  credentials: true
+  origin: [
+    'https://hotel-management-client.onrender.com',
+    'https://hotel-management-admin-7t7g.onrender.com'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
