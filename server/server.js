@@ -32,7 +32,7 @@ if (!fs.existsSync(uploadDir)) {
 
 // Middleware
 app.use(cookieParser());
-app.use(cors({
+app.use('*',cors({
   origin: [
     'https://hotel-management-client.onrender.com',
     'https://hotel-management-admin-7t7g.onrender.com'
