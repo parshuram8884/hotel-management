@@ -16,13 +16,7 @@ const app = express();
 require('dotenv').config();
 
 // Verify environment variables are loaded
-console.log('Environment Check:', {
-  CLOUDINARY_CONFIG: {
-    cloudName: process.env.CLOUDINARY_CLOUD_NAME ? 'Set' : 'Missing',
-    apiKey: process.env.CLOUDINARY_API_KEY ? 'Set' : 'Missing',
-    apiSecret: process.env.CLOUDINARY_API_SECRET ? 'Set' : 'Missing'
-  }
-});
+
 
 // Create uploads directory if it doesn't exist
 const uploadDir = path.join(__dirname, 'uploads/food-images');
@@ -32,7 +26,7 @@ if (!fs.existsSync(uploadDir)) {
 
 // Middleware
 app.use(cookieParser());
-app.use('*',cors({
+app.use(cors({
   origin: [
     'https://hotel-management-client.onrender.com',
     'https://hotel-management-admin-7t7g.onrender.com'
