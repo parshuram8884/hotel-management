@@ -18,7 +18,7 @@ const FoodOrdering = () => {
     try {
       const guestInfo = JSON.parse(localStorage.getItem('guestInfo'));
       const response = await axios.get(
-        `import.meta.env.VITE_API_URL/api/food/menu/${guestInfo.hotelId}`
+        `${import.meta.env.VITE_API_URL}/api/food/menu/${guestInfo.hotelId}`
       );
       setFoods(response.data);
     } catch (error) {
@@ -88,7 +88,7 @@ const FoodOrdering = () => {
       };
 
       const response = await axios.post(
-        'import.meta.env.VITE_API_URL/api/food/orders',
+        `${import.meta.env.VITE_API_URL}/api/food/orders`,
         orderData,
         {
           headers: { Authorization: token }

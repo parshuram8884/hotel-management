@@ -16,7 +16,7 @@ const GuestComplaintTracking = () => {
     try {
       const token = localStorage.getItem('guestToken');
       const response = await axios.get(
-        'import.meta.env.VITE_API_URL/api/complaints/guest',
+        `${import.meta.env.VITE_API_URL}/api/complaints/guest1`,
         {
           headers: { Authorization: token }
         }
@@ -36,7 +36,7 @@ const GuestComplaintTracking = () => {
     try {
       const token = localStorage.getItem('guestToken');
       await axios.post(
-        `import.meta.env.VITE_API_URL/api/complaints/${complaintId}/messages`,
+        `${import.meta.env.VITE_API_URL}/api/complaints/${complaintId}/messages`,
         { message },
         {
           headers: { Authorization: token }

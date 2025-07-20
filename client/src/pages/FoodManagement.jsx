@@ -26,7 +26,7 @@ const FoodManagement = () => {
       console.log('Fetching foods with:', { hotelId: hotelInfo.id, token }); // Debug log
 
       const response = await axios.get(
-        `import.meta.env.VITE_API_URL/api/food/hotel/${hotelInfo.id}`,
+        `${import.meta.env.VITE_API_URL}/api/food/hotel/${hotelInfo.id}`,
         {
           headers: { 
             'Authorization': `Bearer ${token}` // Make sure Bearer is added
@@ -96,7 +96,7 @@ const FoodManagement = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.patch(
-        `import.meta.env.VITE_API_URL/api/food/${foodId}`,
+        `${import.meta.env.VITE_API_URL}/api/food/${foodId}`,
         { isAvailable },
         {
           headers: { Authorization: token }
@@ -117,7 +117,7 @@ const FoodManagement = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(
-        `import.meta.env.VITE_API_URL/api/food/${foodId}`,
+        `${import.meta.env.VITE_API_URL}/api/food/${foodId}`,
         {
           headers: { Authorization: token }
         }

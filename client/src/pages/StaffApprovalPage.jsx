@@ -21,7 +21,7 @@ const StaffApprovalPage = () => {
       setHotelId(hotelInfo.id); // Store hotelId
 
       const response = await axios.get(
-        `import.meta.env.VITE_API_URL/api/guests/pending/${hotelInfo.id}`,
+        `${import.meta.env.VITE_API_URL}/api/guests/pending/${hotelInfo.id}`,
         {
           headers: { Authorization: token }
         }

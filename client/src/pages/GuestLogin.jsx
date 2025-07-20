@@ -38,7 +38,7 @@ const GuestLogin = () => {
     const verifyHotel = async () => {
       try {
         console.log('Verifying hotel:', hotelId);
-        const response = await axios.get(`import.meta.env.VITE_API_URL/api/guests/verify-hotel/${hotelId}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/guests/verify-hotel/${hotelId}`);
         console.log('Hotel verification response:', response.data);
         setHotelInfo(response.data.hotel);
       } catch (error) {

@@ -20,7 +20,7 @@ const ComplaintForm = () => {
       try {
         const guestInfo = JSON.parse(localStorage.getItem('guestInfo'));
         const response = await axios.get(
-          `import.meta.env.VITE_API_URL/api/complaints/predefined/${guestInfo.hotelId}`
+          `${import.meta.env.VITE_API_URL}/api/complaints/predefined/${guestInfo.hotelId}`
         );
         setPredefinedComplaints(response.data);
       } catch (error) {
@@ -41,7 +41,7 @@ const ComplaintForm = () => {
     try {
       const token = localStorage.getItem('guestToken');
       await axios.post(
-        'import.meta.env.VITE_API_URL/api/complaints/submit',
+        `${import.meta.env.VITE_API_URL}/api/complaints/submit`,
         {
           ...formData,
           isPredefined: complaintType === 'predefined'

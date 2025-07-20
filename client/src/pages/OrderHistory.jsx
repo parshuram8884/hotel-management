@@ -18,7 +18,7 @@ function OrderHistory() {
         }
 
         const response = await axios.get(
-          `import.meta.env.VITE_API_URL/api/food/orders/history/${guestInfo._id}`,  // Updated route
+          `${import.meta.env.VITE_API_URL}/api/food/orders/history/${guestInfo._id}`,  // Updated route
           {
             headers: { Authorization: token }
           }
