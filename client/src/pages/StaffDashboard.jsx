@@ -31,7 +31,7 @@ function StaffDashboard() {
       if (!hotelInfo?.id || !token) return;
 
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL/api/guests/approved/${hotelInfo.id}}`,
+        `${import.meta.env.VITE_API_URL/api/guests/approved/${hotelInfo.id}`,
         {
           headers: { Authorization: token }
         }
@@ -50,7 +50,7 @@ function StaffDashboard() {
       const token = localStorage.getItem('token');
       const hotelInfo = JSON.parse(localStorage.getItem('hotelInfo'));
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL/api/auth/settings/${hotelInfo.id}}`,
+        `${import.meta.env.VITE_API_URL/api/auth/settings/${hotelInfo.id}`,
         {
           headers: { Authorization: `Bearer ${token}` }
         }
@@ -71,7 +71,7 @@ function StaffDashboard() {
 
       const token = localStorage.getItem('token');
       await axios.patch(
-        '${import.meta.env.VITE_API_URL/api/auth/settings}',
+        '${import.meta.env.VITE_API_URL/api/auth/settings',
         { 
           maxRooms,
           roomRange
