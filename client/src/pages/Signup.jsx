@@ -58,7 +58,7 @@ const SignUp = () => {
 
     setLoading(true);
     try {
-      const response = await axios.post('https://hotel-management-server-a3o3.onrender.com/api/auth/signup', {
+      const response = await axios.post('import.meta.env.VITE_API_URL/api/auth/signup', {
         hotelName: formData.hotelName,
         email: formData.email,
         password: formData.password,

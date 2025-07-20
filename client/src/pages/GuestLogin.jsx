@@ -38,7 +38,7 @@ const GuestLogin = () => {
     const verifyHotel = async () => {
       try {
         console.log('Verifying hotel:', hotelId);
-        const response = await axios.get(`https://hotel-management-server-a3o3.onrender.com/api/guests/verify-hotel/${hotelId}`);
+        const response = await axios.get(`import.meta.env.VITE_API_URL/api/guests/verify-hotel/${hotelId}`);
         console.log('Hotel verification response:', response.data);
         setHotelInfo(response.data.hotel);
       } catch (error) {
@@ -128,7 +128,7 @@ const GuestLogin = () => {
         console.log('Sending registration request:', requestBody);
 
         const response = await axios.post(
-            `https://hotel-management-server-a3o3.onrender.com/api/guests/register/${hotelId}`,
+            `import.meta.env.VITE_API_URL/api/guests/register/${hotelId}`,
             requestBody
         );
 

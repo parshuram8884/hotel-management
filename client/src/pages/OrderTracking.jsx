@@ -19,7 +19,7 @@ function OrderTracking() {
         }
 
         const response = await axios.get(
-          `https://hotel-management-server-a3o3.onrender.com/api/food/orders/active/${guestInfo._id}`,  // Updated route
+          `import.meta.env.VITE_API_URL/api/food/orders/active/${guestInfo._id}`,  // Updated route
           {
             headers: { Authorization: token }
           }

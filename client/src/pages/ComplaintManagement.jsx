@@ -28,7 +28,7 @@ const ComplaintManagement = () => {
       }
 
       const response = await axios.get(
-        'https://hotel-management-server-a3o3.onrender.com/api/complaints/hotel',
+        'import.meta.env.VITE_API_URL/api/complaints/hotel',
         {
           headers: { Authorization: token }
         }
@@ -51,7 +51,7 @@ const ComplaintManagement = () => {
     try {
       const hotelInfo = JSON.parse(localStorage.getItem('hotelInfo'));
       const response = await axios.get(
-        `https://hotel-management-server-a3o3.onrender.com/api/complaints/predefined/${hotelInfo.id}`
+        `import.meta.env.VITE_API_URL/api/complaints/predefined/${hotelInfo.id}`
       );
       setPredefinedComplaints(response.data);
     } catch (error) {
@@ -66,7 +66,7 @@ const ComplaintManagement = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        'https://hotel-management-server-a3o3.onrender.com/api/complaints/predefined',
+        'import.meta.env.VITE_API_URL/api/complaints/predefined',
         { title: newComplaint },
         {
           headers: { Authorization: token }
@@ -88,7 +88,7 @@ const ComplaintManagement = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.patch(
-        `https://hotel-management-server-a3o3.onrender.com/api/complaints/${complaintId}/status`,
+        `import.meta.env.VITE_API_URL/api/complaints/${complaintId}/status`,
         { status: newStatus },
         {
           headers: { Authorization: token }
@@ -115,7 +115,7 @@ const ComplaintManagement = () => {
       }
 
       const response = await axios.post(
-        `https://hotel-management-server-a3o3.onrender.com/api/complaints/${selectedComplaint._id}/staff-messages`,
+        `import.meta.env.VITE_API_URL/api/complaints/${selectedComplaint._id}/staff-messages`,
         { message },
         {
           headers: { Authorization: token }
@@ -150,7 +150,7 @@ const ComplaintManagement = () => {
       }
 
       await axios.delete(
-        `https://hotel-management-server-a3o3.onrender.com/api/complaints/${complaintId}`,
+        `import.meta.env.VITE_API_URL/api/complaints/${complaintId}`,
         {
           headers: { Authorization: token }
         }

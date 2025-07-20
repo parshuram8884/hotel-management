@@ -18,7 +18,7 @@ function OrderHistory() {
         }
 
         const response = await axios.get(
-          `https://hotel-management-server-a3o3.onrender.com/api/food/orders/history/${guestInfo._id}`,  // Updated route
+          `import.meta.env.VITE_API_URL/api/food/orders/history/${guestInfo._id}`,  // Updated route
           {
             headers: { Authorization: token }
           }

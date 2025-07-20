@@ -29,7 +29,7 @@ const StaffOrderManagement = () => {
       console.log('Hotel ID:', hotelInfo.id); // Debug log
 
       const response = await axios.get(
-        `https://hotel-management-server-a3o3.onrender.com/api/food/orders/${hotelInfo.id}`,
+        `import.meta.env.VITE_API_URL/api/food/orders/${hotelInfo.id}`,
         {
           headers: { 
             Authorization: token,
@@ -63,7 +63,7 @@ const StaffOrderManagement = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.patch(
-        `https://hotel-management-server-a3o3.onrender.com/api/food/orders/${orderId}/update-status`,
+        `import.meta.env.VITE_API_URL/api/food/orders/${orderId}/update-status`,
         { status: newStatus },
         {
           headers: { 

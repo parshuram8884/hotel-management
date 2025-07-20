@@ -16,7 +16,7 @@ const GuestComplaintTracking = () => {
     try {
       const token = localStorage.getItem('guestToken');
       const response = await axios.get(
-        'https://hotel-management-server-a3o3.onrender.com/api/complaints/guest',
+        'import.meta.env.VITE_API_URL/api/complaints/guest',
         {
           headers: { Authorization: token }
         }
@@ -36,7 +36,7 @@ const GuestComplaintTracking = () => {
     try {
       const token = localStorage.getItem('guestToken');
       await axios.post(
-        `https://hotel-management-server-a3o3.onrender.com/api/complaints/${complaintId}/messages`,
+        `import.meta.env.VITE_API_URL/api/complaints/${complaintId}/messages`,
         { message },
         {
           headers: { Authorization: token }

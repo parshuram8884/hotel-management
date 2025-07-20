@@ -11,7 +11,7 @@ const GuestStatus = () => {
   useEffect(() => {
     const checkStatus = async () => {
       try {
-        const response = await axios.get(`https://hotel-management-server-a3o3.onrender.com/api/guests/status/${guestId}`);
+        const response = await axios.get(`import.meta.env.VITE_API_URL/api/guests/status/${guestId}`);
         setStatus(response.data.status);
         
         if (response.data.status === 'approved') {
