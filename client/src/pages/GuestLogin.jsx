@@ -128,7 +128,7 @@ const GuestLogin = () => {
         console.log('Sending registration request:', requestBody);
 
         const response = await axios.post(
-            `import.meta.env.VITE_API_URL/api/guests/register/${hotelId}`,
+            `${import.meta.env.VITE_API_URL}/api/guests/register/${hotelId}`,
             requestBody
         );
 
