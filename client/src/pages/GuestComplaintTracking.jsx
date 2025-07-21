@@ -16,7 +16,7 @@ const GuestComplaintTracking = () => {
     try {
       const token = localStorage.getItem('guestToken');
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/complaints/guest1`,
+        `${import.meta.env.VITE_API_URL}/api/complaints/guest`,
         {
           headers: { Authorization: token }
         }
