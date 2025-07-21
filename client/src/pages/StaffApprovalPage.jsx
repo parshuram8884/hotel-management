@@ -48,7 +48,7 @@ const StaffApprovalPage = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        `import.meta.env.VITE_API_URL/api/guests/approve/${guestId}`,
+        `${import.meta.env.VITE_API_URL}/api/guests/approve/${guestId}`,
         {},
         {
           headers: { Authorization: token }
@@ -66,7 +66,7 @@ const StaffApprovalPage = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        `import.meta.env.VITE_API_URL/api/guests/reject/${guestId}`,
+        `${import.meta.env.VITE_API_URL}/api/guests/reject/${guestId}`,
         { hotelId }, // Include hotelId in rejection
         {
           headers: { Authorization: token }
